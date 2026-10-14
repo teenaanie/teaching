@@ -23,7 +23,7 @@ export async function getAdminCohort(slug: string) {
       .order("position")
       .order("position", { referencedTable: "lessons" })
       .order("position", { referencedTable: "assessments" }),
-    db.from("sessions").select("*").eq("cohort_id", cohort.id).order("starts_at"),
+    db.from("sessions").select("*").eq("cohort_id", cohort.id).order("starts_at").order("position"),
     db.from("enrolments").select("roll_no, status, student:students(id, full_name, email)").eq("cohort_id", cohort.id),
     db.from("cohort_assessments").select("*").eq("cohort_id", cohort.id),
     db.from("cohort_secrets").select("quiz_pin").eq("cohort_id", cohort.id).maybeSingle(),

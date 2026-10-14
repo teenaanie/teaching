@@ -50,6 +50,13 @@ export default async function LessonPage({ params }: Props) {
           {dates.map((d) => formatDate(d.starts_at, cohort.timezone)).join(" · ")}
         </p>
       )}
+      {dates
+        .filter((d) => d.note)
+        .map((d) => (
+          <p key={d.id} className="mt-4 rounded-xl border-2 border-accent bg-accent-soft px-4 py-3 font-bold">
+            {d.note}
+          </p>
+        ))}
       {lesson.summary && <p className="mt-4 text-lg text-muted">{lesson.summary}</p>}
 
       <div className="mt-8 grid gap-8">

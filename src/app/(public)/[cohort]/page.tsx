@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getCohortView, lessonIndex } from "@/lib/data";
-import { formatClock, formatDate, formatTime, nowMs } from "@/lib/format";
+import { formatClock, formatDate, formatTime, localDate, nowMs } from "@/lib/format";
 import type { Session } from "@/lib/types";
 
 export const instant = false;
@@ -21,6 +21,10 @@ export default async function CohortHub({ params }: PageProps<"/[cohort]">) {
   const active = sessions.filter((s) => s.status === "scheduled");
   const next = active.find((s) => new Date(s.ends_at).getTime() > now);
   const nextInfo = next?.lesson_id ? lessons.get(next.lesson_id) : undefined;
+  // Other lessons scheduled for the same day as the next class.
+  const alsoToday = next
+    ? active.filter((s) => s.id !== next.id && localDate(s.starts_at, tz) === localDate(next.starts_at, tz))
+    : [];
   const openQuizzes = view.cohortAssessments.filter((ca) => ca.is_open);
   const assessmentsById = new Map(view.modules.flatMap((m) => m.assessments.map((a) => [a.id, { a, m }] as const)));
   const timeRange = `${formatClock(cohort.start_time)} – ${formatClock(cohort.end_time)}`;
@@ -32,6 +36,12 @@ export default async function CohortHub({ params }: PageProps<"/[cohort]">) {
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-8">
+      {cohort.announcement && (
+        <div role="note" className="mb-6 rounded-2xl border-2 border-accent bg-accent-soft px-5 py-4">
+          <p className="text-xs font-bold uppercase tracking-widest text-accent">Announcement</p>
+          <p className="mt-1 whitespace-pre-line">{cohort.announcement}</p>
+        </div>
+      )}
       <section className="grid gap-4 md:grid-cols-[1.4fr_1fr]">
         <div className="rounded-2xl bg-ink p-6 text-paper">
           <p className="text-xs font-bold uppercase tracking-widest text-accent">{next ? "Next class" : "Course complete"}</p>
@@ -44,7 +54,21 @@ export default async function CohortHub({ params }: PageProps<"/[cohort]">) {
                 {formatDate(next.starts_at, tz, { weekday: "long", month: "long" })} · {formatTime(next.starts_at, tz)}–
                 {formatTime(next.ends_at, tz)}
               </p>
+              {next.note && <p className="mt-3 max-w-prose rounded-lg bg-accent/20 px-3 py-2 font-bold">{next.note}</p>}
               {nextInfo?.lesson.summary && <p className="mt-3 max-w-prose opacity-90">{nextInfo.lesson.summary}</p>}
+              {alsoToday.length > 0 && (
+                <p className="mt-3 text-sm opacity-90">
+                  Also this class:{" "}
+                  {alsoToday.map((s, i) => (
+                    <span key={s.id}>
+                      {i > 0 && ", "}
+                      <Link href={lessonHref(s) ?? "#"} className="font-bold underline">
+                        {s.title ?? (s.lesson_id ? lessons.get(s.lesson_id)?.lesson.title : "Class")}
+                      </Link>
+                    </span>
+                  ))}
+                </p>
+              )}
               {lessonHref(next) && (
                 <Link
                   href={lessonHref(next)!}
@@ -112,7 +136,7 @@ export default async function CohortHub({ params }: PageProps<"/[cohort]">) {
                     const isNext = s.id === next?.id;
                     const cancelled = s.status === "cancelled";
                     return (
-                      <li key={s.id} className={`flex items-center gap-4 py-3 ${past || cancelled ? "opacity-60" : ""}`}>
+                      <li key={s.id} className={`flex items-start gap-4 py-3 ${past || cancelled ? "opacity-60" : ""}`}>
                         <span className={`w-24 shrink-0 text-sm ${isNext ? "font-bold text-accent" : "text-muted"}`}>
                           {formatDate(s.starts_at, tz)}
                         </span>
@@ -121,6 +145,7 @@ export default async function CohortHub({ params }: PageProps<"/[cohort]">) {
                           {info.lesson.slots > 1 && (
                             <span className="text-muted"> · part {s.part} of {info.lesson.slots}</span>
                           )}
+                          {s.note && <span className="mt-0.5 block text-sm text-accent">{s.note}</span>}
                         </Link>
                         {isNext && <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-bold text-accent">Next</span>}
                         {cancelled && <span className="text-xs text-warn">Cancelled</span>}

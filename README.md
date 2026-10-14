@@ -20,7 +20,7 @@ Stack: Next.js 16 (App Router) on Vercel, Supabase (Postgres + Auth), Tailwind.
 
 ## First-time setup
 
-1. **Database.** Apply the migration in `supabase/migrations/` to the Supabase project. Either:
+1. **Database.** Apply the migrations in `supabase/migrations/` (in filename order) to the Supabase project. Either:
    - `npx supabase link --project-ref jtzjhgilmquijtzgwgej` then `npx supabase db push` (asks for the DB password), or
    - paste the SQL file into Supabase → SQL editor → Run.
 2. **Keys.** Copy `.env.example` to `.env.local` and fill in the URL, anon key and service-role key (Supabase → Project Settings → API). Add the same three to Vercel → Project → Settings → Environment Variables.
@@ -38,6 +38,8 @@ Stack: Next.js 16 (App Router) on Vercel, Supabase (Postgres + Auth), Tailwind.
 - **In class:** tap absentees on the attendance list and save.
 - **Quiz day:** Admin → Settings → tick "Quiz open" for the quiz, write the PIN on the board. Students enter their roll number and the PIN. Close the quiz afterwards.
 - **Grades:** Classroom → Grades → ⚙ → Download grades (CSV) → Admin → Gradebook → import. Map columns once and save. You can also type scores directly into the grid.
+- **Moving a class / two lessons on one day:** Admin → Sessions → change the date on the row and click away; it saves itself. Add a note on the row to tell students what's happening; it shows on their schedule and lesson page.
+- **Announcement:** Settings → Announcement shows a banner at the top of the class page.
 - **Holiday or cancelled class:** add the date under Settings → Holidays, then **Rebuild schedule**. Past classes and classes with attendance are kept; everything later shifts.
 
 ## Adding a new course or class

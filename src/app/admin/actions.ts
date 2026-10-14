@@ -148,6 +148,7 @@ export async function updateCohort(cohortId: string, form: FormData) {
       institution: String(form.get("institution") ?? "") || null,
       classroom_url: String(form.get("classroom_url") ?? "") || null,
       classroom_code: String(form.get("classroom_code") ?? "") || null,
+      announcement: String(form.get("announcement") ?? "").trim() || null,
       holidays,
     })
     .eq("id", cohortId);
@@ -171,6 +172,7 @@ export async function updateSession(sessionId: string, form: FormData) {
   const update: Record<string, unknown> = {
     status: form.get("cancelled") ? "cancelled" : "scheduled",
     title: String(form.get("title") ?? "").trim() || null,
+    note: String(form.get("note") ?? "").trim() || null,
   };
   const date = String(form.get("date") ?? "");
   if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -179,6 +181,34 @@ export async function updateSession(sessionId: string, form: FormData) {
     update.ends_at = zonedToUtc(date, cohort!.end_time, cohort!.timezone);
   }
   const { error } = await db.from("sessions").update(update).eq("id", sessionId);
+  if (error) fail(error.message);
+  refresh(await cohortSlug(db, session.cohort_id));
+}
+
+/** Moves one session to another day, keeping the cohort's class times. */
+export async function setSessionDate(sessionId: string, date: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) fail("Pick a valid date");
+  const { db } = await requireTeacher();
+  const { data: session } = await db.from("sessions").select("cohort_id, cohorts(start_time, end_time, timezone)").eq("id", sessionId).single();
+  if (!session) fail("Session not found");
+  const cohort = session.cohorts as unknown as { start_time: string; end_time: string; timezone: string };
+  const { error } = await db
+    .from("sessions")
+    .update({ starts_at: zonedToUtc(date, cohort.start_time, cohort.timezone), ends_at: zonedToUtc(date, cohort.end_time, cohort.timezone) })
+    .eq("id", sessionId);
+  if (error) fail(error.message);
+  refresh(await cohortSlug(db, session.cohort_id));
+}
+
+/** Student-facing note on a session; empty clears it. */
+export async function setSessionNote(sessionId: string, note: string) {
+  const { db } = await requireTeacher();
+  const { data: session, error } = await db
+    .from("sessions")
+    .update({ note: note.trim() || null })
+    .eq("id", sessionId)
+    .select("cohort_id")
+    .single();
   if (error) fail(error.message);
   refresh(await cohortSlug(db, session.cohort_id));
 }

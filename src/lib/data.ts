@@ -52,7 +52,7 @@ export const getCohortView = cache(async (slug: string): Promise<CohortView | nu
   if (!cohort) return null;
   const [outline, sessions, cohortAssessments] = await Promise.all([
     getCourseOutline(cohort.course_id),
-    supabase.from("sessions").select("*").eq("cohort_id", cohort.id).order("position"),
+    supabase.from("sessions").select("*").eq("cohort_id", cohort.id).order("starts_at").order("position"),
     supabase.from("cohort_assessments").select("*").eq("cohort_id", cohort.id),
   ]);
   return {

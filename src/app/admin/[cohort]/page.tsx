@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getAdminCohort } from "@/lib/admin-data";
-import { formatDate, formatTime, nowMs } from "@/lib/format";
+import { formatDate, formatTime, localDate, nowMs } from "@/lib/format";
+import { SessionTable } from "./SessionTable";
 
 export const instant = false;
 
@@ -32,48 +33,27 @@ export default async function SessionsAdmin({ params }: PageProps<"/admin/[cohor
           </p>
         </Link>
       )}
-      <table className="w-full text-sm">
-        <thead className="text-left text-xs uppercase tracking-widest text-muted">
-          <tr>
-            <th className="py-2 pr-3">#</th>
-            <th className="py-2 pr-3">Date</th>
-            <th className="py-2 pr-3">Lesson</th>
-            <th className="py-2 pr-3">Module</th>
-            <th className="py-2 text-right">Attendance</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line">
-          {sessions.map((s, i) => {
-            const info = s.lesson_id ? lessons.get(s.lesson_id) : undefined;
-            const past = new Date(s.starts_at).getTime() < now;
-            const taken = takenBySession.has(s.id);
-            return (
-              <tr key={s.id} className={s.status === "cancelled" ? "text-muted line-through" : ""}>
-                <td className="py-2 pr-3 text-muted">{i + 1}</td>
-                <td className="whitespace-nowrap py-2 pr-3">{formatDate(s.starts_at, tz)}</td>
-                <td className="py-2 pr-3">
-                  <Link href={`/admin/${slug}/sessions/${s.id}`} className="font-bold hover:underline">
-                    {s.title ?? info?.l.title}
-                    {info && info.l.slots > 1 ? ` (${s.part}/${info.l.slots})` : ""}
-                  </Link>
-                </td>
-                <td className="py-2 pr-3 text-muted">{info?.m.title}</td>
-                <td className="py-2 text-right">
-                  {taken ? (
-                    <span className="font-bold">
-                      {presentBySession.get(s.id) ?? 0}/{active}
-                    </span>
-                  ) : past && s.status === "scheduled" ? (
-                    <span className="font-bold text-warn">Not taken</span>
-                  ) : (
-                    <span className="text-muted">—</span>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <p className="text-sm text-muted">
+        Change a date to move a class; two lessons on the same day are shaded. Notes appear for students on the schedule and
+        lesson page. Rebuilding the schedule in Settings resets upcoming dates but keeps notes.
+      </p>
+      <SessionTable
+        slug={slug}
+        activeCount={active}
+        rows={sessions.map((s) => {
+          const info = s.lesson_id ? lessons.get(s.lesson_id) : undefined;
+          return {
+            id: s.id,
+            date: localDate(s.starts_at, tz),
+            weekday: formatDate(s.starts_at, tz, { day: undefined, month: undefined, weekday: "long" }),
+            title: (s.title ?? info?.l.title ?? "Class") + (info && info.l.slots > 1 ? ` (${s.part}/${info.l.slots})` : ""),
+            module: info?.m.title ?? "",
+            note: s.note ?? "",
+            cancelled: s.status === "cancelled",
+            attendance: { taken: takenBySession.has(s.id), present: presentBySession.get(s.id) ?? 0, past: new Date(s.starts_at).getTime() < now },
+          };
+        })}
+      />
       {sessions.length === 0 && <p className="text-muted">No sessions yet. Generate the schedule from Settings.</p>}
     </div>
   );

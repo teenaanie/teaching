@@ -50,7 +50,7 @@ export default async function SessionAdmin({ params }: PageProps<"/admin/[cohort
         )}
 
         <details className="mt-8">
-          <summary className="cursor-pointer text-sm text-teal">Move, rename or cancel this session</summary>
+          <summary className="cursor-pointer text-sm text-teal">Move, rename, add a note or cancel this session</summary>
           <form action={updateSession.bind(null, session.id)} className="mt-3 grid gap-3 rounded-xl border border-line bg-card p-4 sm:grid-cols-2">
             <label className="grid gap-1 text-sm font-bold">
               Date
@@ -59,6 +59,10 @@ export default async function SessionAdmin({ params }: PageProps<"/admin/[cohort
             <label className="grid gap-1 text-sm font-bold">
               Title override
               <input name="title" defaultValue={session.title ?? ""} placeholder={lesson?.title} className="rounded-lg border border-line bg-paper px-3 py-2 font-normal" />
+            </label>
+            <label className="grid gap-1 text-sm font-bold sm:col-span-2">
+              Note for students
+              <input name="note" defaultValue={session.note ?? ""} placeholder="e.g. We'll cover both chart lessons today" className="rounded-lg border border-line bg-paper px-3 py-2 font-normal" />
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" name="cancelled" defaultChecked={session.status === "cancelled"} /> Cancelled

@@ -68,6 +68,7 @@ export type Cohort = {
   holidays: string[];
   classroom_url: string | null;
   classroom_code: string | null;
+  announcement: string | null;
   is_public: boolean;
 };
 
@@ -80,6 +81,7 @@ export type Session = {
   starts_at: string;
   ends_at: string;
   title: string | null;
+  note: string | null;
   status: "scheduled" | "cancelled";
 };
 

@@ -28,12 +28,21 @@ export async function regenerateSchedule(db: SupabaseClient, cohortId: string, n
   if (error) throw new Error(error.message);
 
   const [{ data: sessions }, lessons] = await Promise.all([
-    db.from("sessions").select("id, lesson_id, part, starts_at, attendance(session_id)").eq("cohort_id", cohortId).order("starts_at"),
+    db.from("sessions").select("id, lesson_id, part, starts_at, note, attendance(session_id)").eq("cohort_id", cohortId).order("starts_at"),
     orderedLessons(db, cohort.course_id),
   ]);
-  const all = (sessions ?? []) as { id: string; lesson_id: string | null; part: number; starts_at: string; attendance: unknown[] }[];
+  const all = (sessions ?? []) as {
+    id: string;
+    lesson_id: string | null;
+    part: number;
+    starts_at: string;
+    note: string | null;
+    attendance: unknown[];
+  }[];
   const kept = all.filter((s) => new Date(s.starts_at) <= now || s.attendance.length > 0);
   const replace = all.filter((s) => !kept.includes(s));
+  // Notes follow their lesson part to its new date.
+  const notes = new Map(replace.filter((s) => s.note).map((s) => [`${s.lesson_id}:${s.part}`, s.note]));
 
   const covered = new Set(kept.map((s) => `${s.lesson_id}:${s.part}`));
   const remaining = lessonParts(lessons).filter((p) => !covered.has(`${p.lessonId}:${p.part}`));
@@ -71,6 +80,7 @@ export async function regenerateSchedule(db: SupabaseClient, cohortId: string, n
         position: p.position,
         starts_at: p.startsAt,
         ends_at: p.endsAt,
+        note: notes.get(`${p.lessonId}:${p.part}`) ?? null,
       })),
     );
     if (insError) throw new Error(insError.message);

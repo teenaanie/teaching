@@ -37,6 +37,10 @@ export default async function SettingsAdmin({ params }: PageProps<"/admin/[cohor
             <input name="quiz_pin" defaultValue={quizPin} className={`${field} font-mono`} />
           </label>
           <label className="grid gap-1 text-sm font-bold sm:col-span-2">
+            Announcement for students (shown at the top of the class page; leave empty to hide)
+            <textarea name="announcement" defaultValue={cohort.announcement ?? ""} rows={3} className={field} />
+          </label>
+          <label className="grid gap-1 text-sm font-bold sm:col-span-2">
             Holidays (YYYY-MM-DD, separated by commas or new lines)
             <textarea name="holidays" defaultValue={cohort.holidays.join("\n")} rows={4} className={`${field} font-mono`} />
           </label>
