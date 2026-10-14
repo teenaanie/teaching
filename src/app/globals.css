@@ -1,0 +1,68 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+:root {
+  --paper: #faf7f2;
+  --card: #ffffff;
+  --ink: #17313a;
+  --muted: #5d6b70;
+  --line: #e4ddd2;
+  --accent: #c8701e;
+  --accent-soft: #fbeedd;
+  --teal: #1f6f78;
+  --teal-soft: #e3f0f0;
+  --ok: #2f7d4f;
+  --warn: #b5482f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #121a1d;
+    --card: #19242a;
+    --ink: #e8eef0;
+    --muted: #9fb0b5;
+    --line: #2b3a41;
+    --accent: #e89a4f;
+    --accent-soft: #3a2a1a;
+    --teal: #6fc2c9;
+    --teal-soft: #17343a;
+    --ok: #6cc08f;
+    --warn: #ec8b74;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-teal: var(--teal);
+  --color-teal-soft: var(--teal-soft);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.prose {
+  --tw-prose-body: var(--ink);
+  --tw-prose-headings: var(--ink);
+  --tw-prose-links: var(--teal);
+  --tw-prose-bold: var(--ink);
+  --tw-prose-bullets: var(--accent);
+  --tw-prose-counters: var(--muted);
+  --tw-prose-quotes: var(--ink);
+  --tw-prose-quote-borders: var(--accent);
+  --tw-prose-code: var(--ink);
+  --tw-prose-th-borders: var(--line);
+  --tw-prose-td-borders: var(--line);
+  --tw-prose-hr: var(--line);
+}
