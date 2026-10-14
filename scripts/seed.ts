@@ -3,6 +3,7 @@
  *
  *   npm run seed -- content/courses/quest-data-analytics.ts content/cohorts/azam-2026.ts
  *   npm run seed -- --overwrite-notes content/courses/quest-data-analytics.ts
+ *   (--overwrite-cohort replaces a class's admin-edited settings with the file's values)
  *
  * Needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (read from .env.local).
  */
@@ -12,7 +13,8 @@ import { pathToFileURL } from "node:url";
 import { regenerateSchedule } from "../src/lib/cohort-ops";
 import type { CohortSeed, CourseSeed, SeedFile } from "../content/types";
 
-process.loadEnvFile?.(".env.local");
+// ENV_FILE lets you seed a different project, e.g. ENV_FILE=.env.staging npm run seed -- …
+process.loadEnvFile?.(process.env.ENV_FILE ?? ".env.local");
 
 function check<T>(res: { data: T; error: { message: string } | null }, what: string): NonNullable<T> {
   if (res.error) throw new Error(`${what}: ${res.error.message}`);
@@ -129,9 +131,12 @@ async function seedCourse(db: SupabaseClient, c: CourseSeed, overwriteNotes: boo
   console.log(`✓ course ${c.slug}: ${c.modules.length} modules, ${lessonCount} lessons, ${questionCount} quiz questions`);
 }
 
-async function seedCohort(db: SupabaseClient, c: CohortSeed) {
+async function seedCohort(db: SupabaseClient, c: CohortSeed, overwriteCohort: boolean) {
   const course = check(await db.from("courses").select("id").eq("slug", c.course).single(), `course ${c.course} (seed it first)`);
-  const cohort = check(
+  // An existing class keeps the settings changed in the admin (Classroom link, holidays, announcement…)
+  // unless --overwrite-cohort is passed.
+  const { data: existingCohort } = await db.from("cohorts").select("id").eq("slug", c.slug).maybeSingle();
+  const cohort = existingCohort && !overwriteCohort ? existingCohort : check(
     await db
       .from("cohorts")
       .upsert(
@@ -193,6 +198,7 @@ async function seedCohort(db: SupabaseClient, c: CohortSeed) {
 async function main() {
   const args = process.argv.slice(2);
   const overwriteNotes = args.includes("--overwrite-notes");
+  const overwriteCohort = args.includes("--overwrite-cohort");
   const files = args.filter((a) => !a.startsWith("--"));
   if (files.length === 0) throw new Error("Usage: npm run seed -- [--overwrite-notes] <content file>...");
 
@@ -205,7 +211,7 @@ async function main() {
     const mod = (await import(pathToFileURL(path.resolve(file)).href)) as { default: SeedFile };
     const seed = mod.default;
     if (seed.type === "course") await seedCourse(db, seed, overwriteNotes);
-    else await seedCohort(db, seed);
+    else await seedCohort(db, seed, overwriteCohort);
   }
 }
 

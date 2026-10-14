@@ -7,7 +7,7 @@ export default async function CohortAdminLayout({ children, params }: LayoutProp
   const { cohort } = await getAdminCohort(slug);
   return (
     <div>
-      <header className="border-b border-line bg-card">
+      <header className="border-b border-line bg-card print:hidden">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
           <Link href="/admin" className="text-sm text-muted hover:underline">
             ← Classes

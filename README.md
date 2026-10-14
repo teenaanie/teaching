@@ -3,6 +3,7 @@
 A small teaching site for running courses with in-person cohorts. It is built as a framework: courses, classes (cohorts) and students are all data, so a new course or a new batch at another college needs no code changes.
 
 - **Students** get one link per class: a dated schedule, the next class, lesson pages (Drive slides and videos embedded, Colab notebooks, datasets, assignment briefs with a "Submit on Google Classroom" button), and quizzes.
+- **Students** can also sign in to **My progress** (roll number + a private code from a printed slip) to see only their own marks, feedback and attendance.
 - **Teachers** (`/admin`) get teacher notes for every lesson, one-tap attendance, a gradebook with Google Classroom CSV import and per-module weighted grades, student CSV import, and schedule tools.
 
 Google Classroom stays the place where assignments are submitted and graded. This site links to it.
@@ -14,7 +15,8 @@ Google Classroom stays the place where assignments are submitted and graded. Thi
 | Course | Reusable template: modules → lessons → assessments → quiz questions. Each module has its own grading weights, e.g. `{attendance: 20, quiz: 10, assignment: 70}` | `content/courses/*.ts` → database |
 | Cohort | One run of a course: institution, weekdays, class times, holidays, Classroom link, quiz PIN | `content/cohorts/*.ts` or Admin → Settings |
 | Session | A dated class. Generated from the cohort's weekdays and holidays, one lesson per slot | Generated; edit in Admin |
-| Students | Imported per cohort from CSV (`name, roll_no, email`) | Admin → Students |
+| Students | Added one at a time or imported from CSV (`name, roll_no, email`); each gets a private sign-in code | Admin → Students |
+| Teachers | Anyone with teacher access can manage every class | Admin → Teachers |
 
 Stack: Next.js 16 (App Router) on Vercel, Supabase (Postgres + Auth), Tailwind.
 
@@ -36,7 +38,8 @@ Stack: Next.js 16 (App Router) on Vercel, Supabase (Postgres + Auth), Tailwind.
 
 - **Before class:** open Admin → Sessions → the next class for your teacher notes.
 - **In class:** tap absentees on the attendance list and save.
-- **Quiz day:** Admin → Settings → tick "Quiz open" for the quiz, write the PIN on the board. Students enter their roll number and the PIN. Close the quiz afterwards.
+- **Quiz:** every teaching session has a 5-question check (plus end-of-module quizzes). On the session's admin page press **Open quiz**, write the class PIN on the board, and press **Close quiz** when done.
+- **Grading one student:** Students → click the name → type the score and feedback per assignment → Save. Or use the Gradebook grid for the whole class.
 - **Grades:** Classroom → Grades → ⚙ → Download grades (CSV) → Admin → Gradebook → import. Map columns once and save. You can also type scores directly into the grid.
 - **Moving a class / two lessons on one day:** Admin → Sessions → change the date on the row and click away; it saves itself. Add a note on the row to tell students what's happening; it shows on their schedule and lesson page.
 - **Announcement:** Settings → Announcement shows a banner at the top of the class page.

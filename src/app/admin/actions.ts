@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { requireTeacher } from "@/lib/auth";
 import { regenerateSchedule } from "@/lib/cohort-ops";
 import { zonedToUtc } from "@/lib/schedule";
+import { newAccessCode } from "@/lib/student-session";
 import { createClient } from "@/lib/supabase/server";
 
 export async function signOut() {
@@ -231,4 +232,149 @@ export async function saveLessonNotes(lessonId: string, cohortSlugValue: string,
   const { error } = await db.from("lesson_notes").upsert({ lesson_id: lessonId, notes_md: String(form.get("notes_md") ?? "") });
   if (error) fail(error.message);
   revalidatePath(`/admin/${cohortSlugValue}`, "layout");
+}
+
+// ---------------------------------------------------------------------------
+// Teachers
+// ---------------------------------------------------------------------------
+export type ActionResult = { ok: boolean; message: string };
+
+/**
+ * Gives someone teacher access. Creates their login with the temporary password if they
+ * don't have one yet; an existing login just gets teacher access added.
+ */
+export async function addTeacher(_prev: ActionResult | null, form: FormData): Promise<ActionResult> {
+  const { db } = await requireTeacher();
+  const name = String(form.get("name") ?? "").trim();
+  const email = String(form.get("email") ?? "").trim().toLowerCase();
+  const password = String(form.get("password") ?? "");
+  if (!name || !email) return { ok: false, message: "Enter a name and email." };
+
+  let userId: string | undefined;
+  for (let page = 1; !userId && page < 50; page++) {
+    const { data, error } = await db.auth.admin.listUsers({ page, perPage: 200 });
+    if (error) return { ok: false, message: error.message };
+    userId = data.users.find((u) => u.email?.toLowerCase() === email)?.id;
+    if (data.users.length < 200) break;
+  }
+  let created = false;
+  if (!userId) {
+    if (password.length < 8) return { ok: false, message: "This email has no login yet. Set a temporary password of at least 8 characters." };
+    const { data, error } = await db.auth.admin.createUser({ email, password, email_confirm: true });
+    if (error) return { ok: false, message: error.message };
+    userId = data.user.id;
+    created = true;
+  }
+  const { error } = await db.from("teachers").upsert({ user_id: userId, name });
+  if (error) return { ok: false, message: error.message };
+  revalidatePath("/admin/teachers");
+  return {
+    ok: true,
+    message: created
+      ? `${name} can now sign in at /admin with ${email} and the temporary password. Share it with them privately.`
+      : `${name} already had a login and now has teacher access.`,
+  };
+}
+
+export async function removeTeacher(userId: string) {
+  const { db, teacher } = await requireTeacher();
+  if (userId === teacher.user_id) fail("You can't remove yourself.");
+  const { error } = await db.from("teachers").delete().eq("user_id", userId);
+  if (error) fail(error.message);
+  revalidatePath("/admin/teachers");
+}
+
+// ---------------------------------------------------------------------------
+// Single students
+// ---------------------------------------------------------------------------
+function studentFields(form: FormData) {
+  return {
+    name: String(form.get("full_name") ?? "").trim(),
+    roll: String(form.get("roll_no") ?? "").trim(),
+    email: String(form.get("email") ?? "").trim() || null,
+  };
+}
+
+export async function addStudent(cohortId: string, _prev: ActionResult | null, form: FormData): Promise<ActionResult> {
+  const { db } = await requireTeacher();
+  const { name, roll, email } = studentFields(form);
+  if (!name || !roll) return { ok: false, message: "Name and roll number are required." };
+  const { data: clash } = await db.from("enrolments").select("student_id").eq("cohort_id", cohortId).ilike("roll_no", roll).maybeSingle();
+  if (clash) return { ok: false, message: `Roll number ${roll} is already used in this class.` };
+  const { data: student, error } = await db.from("students").insert({ full_name: name, email }).select("id").single();
+  if (error) return { ok: false, message: error.message };
+  const { error: enrolError } = await db.from("enrolments").insert({ cohort_id: cohortId, student_id: student.id, roll_no: roll });
+  if (enrolError) return { ok: false, message: enrolError.message };
+  refresh(await cohortSlug(db, cohortId));
+  return { ok: true, message: `Added ${name}.` };
+}
+
+export async function updateStudent(cohortId: string, studentId: string, _prev: ActionResult | null, form: FormData): Promise<ActionResult> {
+  const { db } = await requireTeacher();
+  const { name, roll, email } = studentFields(form);
+  if (!name || !roll) return { ok: false, message: "Name and roll number are required." };
+  const { data: clash } = await db
+    .from("enrolments")
+    .select("student_id")
+    .eq("cohort_id", cohortId)
+    .ilike("roll_no", roll)
+    .neq("student_id", studentId)
+    .maybeSingle();
+  if (clash) return { ok: false, message: `Roll number ${roll} is already used in this class.` };
+  const { error } = await db.from("students").update({ full_name: name, email }).eq("id", studentId);
+  if (error) return { ok: false, message: error.message };
+  const { error: enrolError } = await db.from("enrolments").update({ roll_no: roll }).eq("cohort_id", cohortId).eq("student_id", studentId);
+  if (enrolError) return { ok: false, message: enrolError.message };
+  refresh(await cohortSlug(db, cohortId));
+  return { ok: true, message: "Saved." };
+}
+
+/** Score plus written feedback for one student on one assessment. Empty score clears it. */
+export async function saveScoreWithFeedback(cohortId: string, assessmentId: string, studentId: string, form: FormData) {
+  const { db } = await requireTeacher();
+  const raw = String(form.get("score") ?? "").trim();
+  const feedback = String(form.get("feedback") ?? "").trim() || null;
+  const key = { cohort_id: cohortId, assessment_id: assessmentId, student_id: studentId };
+  if (raw === "") {
+    await db.from("scores").delete().match(key);
+  } else {
+    const score = Number(raw);
+    if (!Number.isFinite(score) || score < 0) fail("Score must be a positive number");
+    const { error } = await db.from("scores").upsert({ ...key, score, feedback, source: "manual", updated_at: new Date().toISOString() });
+    if (error) fail(error.message);
+  }
+  refresh(await cohortSlug(db, cohortId));
+}
+
+/** Opens or closes a quiz for a cohort (used from the session page). */
+export async function setQuizOpen(cohortId: string, assessmentId: string, open: boolean) {
+  const { db } = await requireTeacher();
+  const { error } = await db.from("cohort_assessments").upsert({ cohort_id: cohortId, assessment_id: assessmentId, is_open: open }, { onConflict: "cohort_id,assessment_id" });
+  if (error) fail(error.message);
+  refresh(await cohortSlug(db, cohortId));
+}
+
+// ---------------------------------------------------------------------------
+// Student sign-in codes
+// ---------------------------------------------------------------------------
+/** Gives every active student without a code a new one. Existing codes are kept. */
+export async function createMissingCodes(cohortId: string) {
+  const { db } = await requireTeacher();
+  const { data } = await db.from("enrolments").select("student_id, access_code").eq("cohort_id", cohortId).eq("status", "active");
+  const used = new Set((data ?? []).map((e) => e.access_code).filter(Boolean));
+  for (const e of (data ?? []).filter((x) => !x.access_code)) {
+    let code = newAccessCode();
+    while (used.has(code)) code = newAccessCode();
+    used.add(code);
+    await db.from("enrolments").update({ access_code: code }).eq("cohort_id", cohortId).eq("student_id", e.student_id);
+  }
+  refresh(await cohortSlug(db, cohortId));
+}
+
+/** Replaces one student's code (e.g. a lost slip). Their old code stops working. */
+export async function resetCode(cohortId: string, studentId: string) {
+  const { db } = await requireTeacher();
+  const { error } = await db.from("enrolments").update({ access_code: newAccessCode() }).eq("cohort_id", cohortId).eq("student_id", studentId);
+  if (error) fail(error.message);
+  refresh(await cohortSlug(db, cohortId));
 }

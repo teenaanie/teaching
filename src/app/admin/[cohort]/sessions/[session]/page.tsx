@@ -5,6 +5,8 @@ import { getAdminCohort } from "@/lib/admin-data";
 import { formatDate, formatTime, localDate } from "@/lib/format";
 import { saveLessonNotes, updateSession } from "../../../actions";
 import { AttendanceForm } from "./AttendanceForm";
+import { QuizToggle } from "./QuizToggle";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const instant = false;
 
@@ -18,6 +20,12 @@ export default async function SessionAdmin({ params }: PageProps<"/admin/[cohort
   const lesson = mod?.lessons.find((l) => l.id === session.lesson_id);
   const marks = new Map(data.attendance.filter((a) => a.session_id === session.id).map((a) => [a.student_id, a.present]));
   const students = data.roster.filter((r) => r.status === "active");
+  const quizzes = data.outline.modules.flatMap((m) => m.assessments).filter((a) => a.kind === "quiz" && a.lesson_id === session.lesson_id);
+  const openQuizzes = new Set(data.cohortAssessments.filter((c) => c.is_open).map((c) => c.assessment_id));
+  const { data: questionRows } = quizzes.length
+    ? await createAdminClient().from("quiz_questions").select("assessment_id").in("assessment_id", quizzes.map((q) => q.id))
+    : { data: [] as { assessment_id: string }[] };
+  const questionCount = (id: string) => (questionRows ?? []).filter((r) => r.assessment_id === id).length;
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr]">
@@ -75,13 +83,29 @@ export default async function SessionAdmin({ params }: PageProps<"/admin/[cohort
         </details>
       </section>
 
-      <section>
+      <section className="grid content-start gap-6">
+        {quizzes.length > 0 && (
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-muted">Quiz</h2>
+            <div className="mt-2 grid gap-2">
+              {quizzes.map((q) => (
+                <QuizToggle key={q.id} cohortId={data.cohort.id} assessmentId={q.id} title={q.title} open={openQuizzes.has(q.id)} questions={questionCount(q.id)} />
+              ))}
+            </div>
+            <p className="mt-2 text-sm text-muted">
+              Class PIN: <b className="font-mono text-ink">{data.quizPin || "not set"}</b>. Write it on the board; students enter it
+              with their roll number.
+            </p>
+          </div>
+        )}
+        <div>
         <h2 className="text-xs font-bold uppercase tracking-widest text-muted">Attendance</h2>
         <AttendanceForm
           sessionId={session.id}
           students={students.map((s) => ({ id: s.id, name: s.full_name, roll: s.roll_no }))}
           initial={Object.fromEntries(students.map((s) => [s.id, marks.get(s.id) ?? null]))}
         />
+        </div>
       </section>
     </div>
   );

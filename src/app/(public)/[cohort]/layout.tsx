@@ -19,6 +19,10 @@ export default async function CohortLayout({ children, params }: LayoutProps<"/[
             <span className="block truncate font-display text-lg font-semibold">{view.course.title}</span>
             <span className="block truncate text-xs text-muted">{cohort.title}</span>
           </Link>
+          <div className="flex items-center gap-3">
+            <Link href={`/${cohort.slug}/me`} className="rounded-full border border-line px-4 py-1.5 text-sm font-bold hover:border-teal">
+              My progress
+            </Link>
           {cohort.classroom_url && (
             <a
               href={cohort.classroom_url}
@@ -29,6 +33,7 @@ export default async function CohortLayout({ children, params }: LayoutProps<"/[
               Google Classroom ↗
             </a>
           )}
+          </div>
         </div>
       </header>
       <div className="flex-1">{children}</div>

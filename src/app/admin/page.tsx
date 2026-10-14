@@ -11,9 +11,14 @@ export default async function AdminHome() {
     <main className="mx-auto w-full max-w-3xl px-4 py-10">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-3xl font-semibold">Hello{teacher.name ? `, ${teacher.name}` : ""}</h1>
-        <form action={signOut}>
-          <button className="text-sm text-muted hover:underline">Sign out</button>
-        </form>
+        <div className="flex items-center gap-4 text-sm">
+          <Link href="/admin/teachers" className="text-teal hover:underline">
+            Teachers
+          </Link>
+          <form action={signOut}>
+            <button className="text-muted hover:underline">Sign out</button>
+          </form>
+        </div>
       </div>
       <h2 className="mt-8 text-xs font-bold uppercase tracking-widest text-muted">Your classes</h2>
       <ul className="mt-3 grid gap-3">

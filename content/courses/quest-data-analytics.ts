@@ -1,4 +1,5 @@
 import { colab, drive, gdoc, gsheet, gslides, type CourseSeed } from "../types";
+import { sessionQuizzes } from "./quest-data-analytics-session-quizzes";
 
 // ---------------------------------------------------------------------------
 // Drive material (Quest Center shared folders)
@@ -940,5 +941,8 @@ Pick a dataset (your own, or one from class). In teams of 2–3 that you choose 
     },
   ],
 };
+
+// Add the per-session check-in quizzes after each module's own assessments.
+for (const m of course.modules) m.assessments = [...(m.assessments ?? []), ...(sessionQuizzes[m.slug] ?? [])];
 
 export default course;
