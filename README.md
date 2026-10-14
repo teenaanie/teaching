@@ -24,7 +24,7 @@ Stack: Next.js 16 (App Router) on Vercel, Supabase (Postgres + Auth), Tailwind.
    - `npx supabase link --project-ref jtzjhgilmquijtzgwgej` then `npx supabase db push` (asks for the DB password), or
    - paste the SQL file into Supabase → SQL editor → Run.
 2. **Keys.** Copy `.env.example` to `.env.local` and fill in the URL, anon key and service-role key (Supabase → Project Settings → API). Add the same three to Vercel → Project → Settings → Environment Variables.
-3. **Content.** Load the course and the Azam class:
+3. **Content.** Load the course and the Azam class. Either paste `supabase/seed-quest-azam.sql` into the SQL editor (no keys needed), or run:
    ```bash
    npm install
    npm run seed -- content/courses/quest-data-analytics.ts content/cohorts/azam-2026.ts
@@ -46,7 +46,7 @@ Stack: Next.js 16 (App Router) on Vercel, Supabase (Postgres + Auth), Tailwind.
 2. Copy `content/cohorts/azam-2026.ts` for the new batch: change the slug, title, weekdays, times, start date and course slug.
 3. Run `npm run seed -- <course file> <cohort file>`.
 
-Seeding is idempotent and matched by slug, so you can re-run it after editing content. Teacher notes edited in the admin are not overwritten unless you pass `--overwrite-notes`. The schedule is generated only the first time; use Rebuild in Settings afterwards.
+To regenerate `supabase/seed-quest-azam.sql` after editing content, seed a local database and dump it (see the git history for the command). Seeding is idempotent and matched by slug, so you can re-run it after editing content. Teacher notes edited in the admin are not overwritten unless you pass `--overwrite-notes`. The schedule is generated only the first time; use Rebuild in Settings afterwards.
 
 ## Development
 
