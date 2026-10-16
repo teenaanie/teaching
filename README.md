@@ -3,7 +3,7 @@
 A small teaching site for running courses with in-person cohorts. It is built as a framework: courses, classes (cohorts) and students are all data, so a new course or a new batch at another college needs no code changes.
 
 - **Students** get one link per class: a dated schedule, the next class, lesson pages (Drive slides and videos embedded, Colab notebooks, datasets, assignment briefs with a "Submit on Google Classroom" button), and quizzes.
-- **Students** can also sign in to **My progress** (roll number + a private code from a printed slip) to see only their own marks, feedback and attendance.
+- **Students** can also sign in to **My progress** (where they also take open quizzes, submit assignments and answer feedback forms) (roll number + a private code from a printed slip) to see only their own marks, feedback and attendance.
 - **Teachers** (`/admin`) get teacher notes for every lesson, one-tap attendance, a gradebook with Google Classroom CSV import and per-module weighted grades, student CSV import, and schedule tools.
 
 Google Classroom stays the place where assignments are submitted and graded. This site links to it.
@@ -39,6 +39,8 @@ Stack: Next.js 16 (App Router) on Vercel, Supabase (Postgres + Auth), Tailwind.
 - **Before class:** open Admin → Sessions → the next class for your teacher notes.
 - **In class:** tap absentees on the attendance list and save.
 - **Quiz:** every teaching session has a 5-question check (plus end-of-module quizzes). On the session's admin page press **Open quiz**, write the class PIN on the board, and press **Close quiz** when done.
+- **Assignments on the site:** Admin → Assignments → **Accept on site**. Students submit from My progress → To do: up to 5 files (25 MB each) and/or a link. For Tableau work they paste their Tableau Public link and can add a screenshot or PDF. Open the assignment in the admin to download files and grade with feedback; late submissions are marked.
+- **Feedback forms:** Admin → Feedback → New feedback form (starts with four questions you can edit). Open it and it appears in each student's To do. Anonymous forms never show names; results show averages, counts and written answers. Use “Copy as new form” for next week.
 - **Grading one student:** Students → click the name → type the score and feedback per assignment → Save. Or use the Gradebook grid for the whole class.
 - **Grades:** Classroom → Grades → ⚙ → Download grades (CSV) → Admin → Gradebook → import. Map columns once and save. You can also type scores directly into the grid.
 - **Moving a class / two lessons on one day:** Admin → Sessions → change the date on the row and click away; it saves itself. Add a note on the row to tell students what's happening; it shows on their schedule and lesson page.

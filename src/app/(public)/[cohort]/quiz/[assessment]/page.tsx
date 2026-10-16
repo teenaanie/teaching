@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCohortView } from "@/lib/data";
+import { getSignedInStudent } from "@/lib/student-data";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { QuizForm } from "./QuizForm";
 
@@ -29,6 +30,7 @@ export default async function QuizPage({ params }: Props) {
     .eq("assessment_id", assessment.id)
     .order("position");
   const questions = (data ?? []) as { id: string; prompt: string; options: string[] }[];
+  const me = await getSignedInStudent(view.cohort.id);
 
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-8">
@@ -39,7 +41,7 @@ export default async function QuizPage({ params }: Props) {
       <p className="mt-1 text-muted">{questions.length} questions · one attempt</p>
       <div className="mt-6">
         {setting?.is_open ? (
-          <QuizForm cohortId={view.cohort.id} assessmentId={assessment.id} questions={questions} />
+          <QuizForm cohortId={view.cohort.id} assessmentId={assessment.id} questions={questions} signedInAs={me ? `${me.name} (${me.rollNo})` : undefined} />
         ) : (
           <p className="rounded-xl border border-line bg-card p-5">This quiz isn&apos;t open right now.</p>
         )}

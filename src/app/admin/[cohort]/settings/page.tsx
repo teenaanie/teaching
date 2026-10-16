@@ -60,7 +60,7 @@ export default async function SettingsAdmin({ params }: PageProps<"/admin/[cohor
       <section>
         <h2 className="font-display text-xl font-semibold">Assignments and quizzes</h2>
         <p className="mt-1 text-sm text-muted">
-          Open a quiz when you want students to take it. Due dates decide when missing work starts counting as zero.
+          Open a quiz when you want students to take it. “Accept on site” lets students upload work from My progress. Due dates decide when missing work starts counting as zero and when a submission is marked late.
         </p>
         <div className="mt-4 grid gap-6">
           {outline.modules.map((m) =>
@@ -87,7 +87,9 @@ export default async function SettingsAdmin({ params }: PageProps<"/admin/[cohor
                               <input type="checkbox" name="is_open" defaultChecked={s?.is_open ?? false} /> Quiz open
                             </label>
                           ) : (
-                            <span />
+                            <label className="flex items-center gap-2">
+                              <input type="checkbox" name="accept_submissions" defaultChecked={s?.accept_submissions ?? false} /> Accept on site
+                            </label>
                           )}
                           <button className="rounded-full border border-teal px-3 py-1 font-bold text-teal">Save</button>
                         </form>

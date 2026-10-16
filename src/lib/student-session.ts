@@ -57,3 +57,8 @@ export async function getStudentSession(cohortId: string): Promise<string | null
   if (Number(exp) < Date.now() / 1000 || cid !== cohortId) return null;
   return sid;
 }
+
+/** Stable per-form key for a student, so they can answer once without the answer naming them. */
+export function respondentKey(formId: string, studentId: string) {
+  return createHmac("sha256", key()).update(`feedback:${formId}:${studentId}`).digest("base64url");
+}

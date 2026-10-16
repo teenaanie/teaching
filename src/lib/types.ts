@@ -52,6 +52,7 @@ export type CohortAssessment = {
   classroom_url: string | null;
   due_date: string | null;
   is_open: boolean;
+  accept_submissions: boolean;
 };
 
 export type Cohort = {

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import type { ActionResult } from "@/app/admin/actions";
+import { useHydrated } from "@/lib/use-hydrated";
 
 /**
  * Form wrapper that shows an action's success or error message. Submits manually so typed
@@ -22,6 +23,7 @@ export function ActionForm({
 }) {
   const [result, setResult] = useState<ActionResult | null>(null);
   const [pending, start] = useTransition();
+  const hydrated = useHydrated();
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -35,10 +37,10 @@ export function ActionForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className={className}>
+    <form method="post" onSubmit={onSubmit} className={className}>
       {children}
       <div className="flex flex-wrap items-center gap-3">
-        <button disabled={pending} className="rounded-full bg-teal px-5 py-2 text-sm font-bold text-white disabled:opacity-60 dark:text-[#0d1a1d]">
+        <button disabled={pending || !hydrated} className="rounded-full bg-teal px-5 py-2 text-sm font-bold text-white disabled:opacity-60 dark:text-[#0d1a1d]">
           {pending ? "Saving…" : submit}
         </button>
         {result && <span className={`text-sm ${result.ok ? "text-ok" : "font-bold text-warn"}`}>{result.message}</span>}

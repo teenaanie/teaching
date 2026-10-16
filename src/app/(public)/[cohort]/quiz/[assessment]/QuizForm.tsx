@@ -2,12 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { submitQuiz, type QuizResult } from "./actions";
+import { useHydrated } from "@/lib/use-hydrated";
 
 type Question = { id: string; prompt: string; options: string[] };
 
-export function QuizForm({ cohortId, assessmentId, questions }: { cohortId: string; assessmentId: string; questions: Question[] }) {
+export function QuizForm({ cohortId, assessmentId, questions, signedInAs }: { cohortId: string; assessmentId: string; questions: Question[]; signedInAs?: string }) {
   const [result, setResult] = useState<QuizResult | null>(null);
   const [pending, start] = useTransition();
+  const hydrated = useHydrated();
 
   // Submit manually (not via the form `action` prop) so a wrong PIN doesn't reset the student's answers.
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -51,14 +53,20 @@ export function QuizForm({ cohortId, assessmentId, questions }: { cohortId: stri
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-6">
+    <form method="post" onSubmit={onSubmit} className="grid gap-6">
       <input type="hidden" name="cohortId" value={cohortId} />
       <input type="hidden" name="assessmentId" value={assessmentId} />
       <div className="grid gap-3 rounded-2xl border border-line bg-card p-5 sm:grid-cols-2">
-        <label className="grid gap-1 text-sm font-bold">
-          Roll number
-          <input name="rollNo" required autoComplete="off" className="rounded-lg border border-line bg-paper px-3 py-2 font-normal" />
-        </label>
+        {signedInAs ? (
+          <p className="self-end text-sm">
+            Answering as <b>{signedInAs}</b>
+          </p>
+        ) : (
+          <label className="grid gap-1 text-sm font-bold">
+            Roll number
+            <input name="rollNo" required autoComplete="off" className="rounded-lg border border-line bg-paper px-3 py-2 font-normal" />
+          </label>
+        )}
         <label className="grid gap-1 text-sm font-bold">
           Class PIN (on the board)
           <input name="pin" required autoComplete="off" inputMode="numeric" className="rounded-lg border border-line bg-paper px-3 py-2 font-normal" />
@@ -84,7 +92,7 @@ export function QuizForm({ cohortId, assessmentId, questions }: { cohortId: stri
         ))}
       </ol>
       {result && !result.ok && <p className="rounded-lg bg-accent-soft px-4 py-3 font-bold text-warn">{result.error}</p>}
-      <button disabled={pending} className="justify-self-start rounded-full bg-accent px-6 py-2.5 font-bold text-[#1b1208] disabled:opacity-60">
+      <button disabled={pending || !hydrated} className="justify-self-start rounded-full bg-accent px-6 py-2.5 font-bold text-[#1b1208] disabled:opacity-60">
         {pending ? "Submitting…" : "Submit answers"}
       </button>
     </form>

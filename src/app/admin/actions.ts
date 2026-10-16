@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { requireTeacher } from "@/lib/auth";
 import { regenerateSchedule } from "@/lib/cohort-ops";
 import { zonedToUtc } from "@/lib/schedule";
+import { parseQuestions, STARTER_QUESTIONS } from "@/lib/feedback";
 import { newAccessCode } from "@/lib/student-session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -222,7 +223,18 @@ export async function updateCohortAssessment(cohortId: string, assessmentId: str
     classroom_url: String(form.get("classroom_url") ?? "") || null,
     due_date: String(form.get("due_date") ?? "") || null,
     is_open: form.get("is_open") === "on",
+    accept_submissions: form.get("accept_submissions") === "on",
   });
+  if (error) fail(error.message);
+  refresh(await cohortSlug(db, cohortId));
+}
+
+/** Turns on-site submission on or off for one assessment (used from the Assignments page). */
+export async function setAcceptSubmissions(cohortId: string, assessmentId: string, accept: boolean) {
+  const { db } = await requireTeacher();
+  const { error } = await db
+    .from("cohort_assessments")
+    .upsert({ cohort_id: cohortId, assessment_id: assessmentId, accept_submissions: accept }, { onConflict: "cohort_id,assessment_id" });
   if (error) fail(error.message);
   refresh(await cohortSlug(db, cohortId));
 }
@@ -377,4 +389,74 @@ export async function resetCode(cohortId: string, studentId: string) {
   const { error } = await db.from("enrolments").update({ access_code: newAccessCode() }).eq("cohort_id", cohortId).eq("student_id", studentId);
   if (error) fail(error.message);
   refresh(await cohortSlug(db, cohortId));
+}
+
+// ---------------------------------------------------------------------------
+// Feedback forms
+// ---------------------------------------------------------------------------
+/** New form with the starter questions (or a copy of another form), then open the editor. */
+export async function createFeedbackForm(cohortId: string, copyFromId?: string) {
+  const { db } = await requireTeacher();
+  let base = { title: "Class feedback", description: null as string | null, questions: STARTER_QUESTIONS as unknown, anonymous: true };
+  if (copyFromId) {
+    const { data } = await db.from("feedback_forms").select("title, description, questions, anonymous").eq("id", copyFromId).single();
+    if (data) base = { ...data, title: `${data.title} (copy)` };
+  }
+  const { data: created, error } = await db
+    .from("feedback_forms")
+    .insert({ cohort_id: cohortId, ...base, is_open: false })
+    .select("id")
+    .single();
+  if (error) fail(error.message);
+  const slug = await cohortSlug(db, cohortId);
+  refresh(slug);
+  redirect(`/admin/${slug}/feedback/${created.id}`);
+}
+
+export async function updateFeedbackForm(formId: string, _prev: ActionResult | null, form: FormData): Promise<ActionResult> {
+  const { db } = await requireTeacher();
+  const title = String(form.get("title") ?? "").trim();
+  if (!title) return { ok: false, message: "Give the form a title." };
+  let questions;
+  try {
+    questions = parseQuestions(String(form.get("questions") ?? "[]"));
+  } catch (e) {
+    return { ok: false, message: (e as Error).message };
+  }
+  const sessionId = String(form.get("session_id") ?? "") || null;
+  const { data, error } = await db
+    .from("feedback_forms")
+    .update({
+      title,
+      description: String(form.get("description") ?? "").trim() || null,
+      anonymous: form.get("anonymous") === "on",
+      session_id: sessionId,
+      questions,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", formId)
+    .select("cohort_id")
+    .single();
+  if (error) return { ok: false, message: error.message };
+  refresh(await cohortSlug(db, data.cohort_id));
+  return { ok: true, message: "Saved." };
+}
+
+export async function setFeedbackOpen(formId: string, open: boolean) {
+  const { db } = await requireTeacher();
+  const { data, error } = await db.from("feedback_forms").update({ is_open: open }).eq("id", formId).select("cohort_id").single();
+  if (error) fail(error.message);
+  refresh(await cohortSlug(db, data.cohort_id));
+}
+
+/** Deletes a form only while nobody has answered it, so collected feedback is never lost by accident. */
+export async function deleteFeedbackForm(formId: string) {
+  const { db } = await requireTeacher();
+  const { count } = await db.from("feedback_responses").select("id", { count: "exact", head: true }).eq("form_id", formId);
+  if (count) fail("This form already has answers, so it can't be deleted. Close it instead.");
+  const { data, error } = await db.from("feedback_forms").delete().eq("id", formId).select("cohort_id").single();
+  if (error) fail(error.message);
+  const slug = await cohortSlug(db, data.cohort_id);
+  refresh(slug);
+  redirect(`/admin/${slug}/feedback`);
 }

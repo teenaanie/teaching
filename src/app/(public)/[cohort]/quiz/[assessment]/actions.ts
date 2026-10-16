@@ -1,5 +1,6 @@
 "use server";
 
+import { getStudentSession } from "@/lib/student-session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { QuizQuestion } from "@/lib/types";
 
@@ -13,21 +14,28 @@ export type QuizResult =
     };
 
 /**
- * Grades a quiz. Students have no accounts: the roll number must be enrolled in the
- * cohort and the PIN must match the cohort's current quiz PIN. One attempt per student.
+ * Grades a quiz. A student signed in to My progress is known already; anyone else gives a
+ * roll number enrolled in the cohort. Either way the PIN must match the cohort's current quiz
+ * PIN, so quizzes only happen when the teacher opens them in class. One attempt per student.
  */
 export async function submitQuiz(_prev: QuizResult | null, form: FormData): Promise<QuizResult> {
   const cohortId = String(form.get("cohortId") ?? "");
   const assessmentId = String(form.get("assessmentId") ?? "");
   const rollNo = String(form.get("rollNo") ?? "").trim();
   const pin = String(form.get("pin") ?? "").trim();
-  if (!rollNo || !pin) return { ok: false, error: "Enter your roll number and the class PIN." };
+  const signedIn = await getStudentSession(cohortId);
+  if (!pin) return { ok: false, error: "Enter the class PIN from the board." };
+  if (!signedIn && !rollNo) return { ok: false, error: "Enter your roll number and the class PIN." };
 
   const db = createAdminClient();
+  const enrolmentQuery = db.from("enrolments").select("student_id").eq("cohort_id", cohortId).eq("status", "active");
   const [{ data: secret }, { data: setting }, { data: enrolment }] = await Promise.all([
     db.from("cohort_secrets").select("quiz_pin").eq("cohort_id", cohortId).maybeSingle(),
     db.from("cohort_assessments").select("is_open").eq("cohort_id", cohortId).eq("assessment_id", assessmentId).maybeSingle(),
-    db.from("enrolments").select("student_id").eq("cohort_id", cohortId).ilike("roll_no", rollNo.replace(/[%_\\]/g, "\\$&")).eq("status", "active").maybeSingle(),
+    (signedIn
+      ? enrolmentQuery.eq("student_id", signedIn)
+      : enrolmentQuery.ilike("roll_no", rollNo.replace(/[%_\\]/g, "\\$&"))
+    ).maybeSingle(),
   ]);
   if (!setting?.is_open) return { ok: false, error: "This quiz is closed." };
   if (!secret || secret.quiz_pin !== pin) return { ok: false, error: "That PIN isn't right. Check the board." };
