@@ -16,7 +16,7 @@ export default async function StudentPage({ params }: PageProps<"/admin/[cohort]
   const student = data.roster.find((r) => r.id === studentId);
   if (!student) notFound();
   const { cohort } = data;
-  const grades = computeGrades(data).get(student.id)!;
+  const grades = computeGrades(data, undefined, data.cohort.timezone).get(student.id)!;
   const scores = new Map(
     data.scores.filter((s) => s.student_id === student.id).map((s) => [s.assessment_id, s] as const),
   );

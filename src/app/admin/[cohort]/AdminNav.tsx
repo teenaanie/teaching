@@ -7,6 +7,7 @@ export function AdminNav({ slug }: { slug: string }) {
   const path = usePathname();
   const items = [
     { href: `/admin/${slug}`, label: "Sessions" },
+    { href: `/admin/${slug}/attendance`, label: "Attendance" },
     { href: `/admin/${slug}/assignments`, label: "Assignments" },
     { href: `/admin/${slug}/gradebook`, label: "Gradebook" },
     { href: `/admin/${slug}/students`, label: "Students" },

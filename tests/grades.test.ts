@@ -52,3 +52,18 @@ test("an assessment that isn't due yet only counts for students who have a score
   const other = moduleGrade("basic", input.modules[0].grading, "nobody", withEarly);
   assert.equal(other.percent, 0);
 });
+
+test("attendance counts class days, not lessons", () => {
+  const days: GradeInput = {
+    ...input,
+    sessions: [
+      { id: "m1", moduleId: "basic", counts: true, day: "2026-10-13" },
+      { id: "m2", moduleId: "basic", counts: true, day: "2026-10-13" },
+      { id: "m3", moduleId: "basic", counts: true, day: "2026-10-13" },
+      { id: "t1", moduleId: "basic", counts: true, day: "2026-10-15" },
+    ],
+    attendance: { stu: { m1: true, m2: true, m3: true, t1: false } },
+  };
+  const g = moduleGrade("basic", { attendance: 100 }, "stu", days);
+  assert.equal(g.percent, 50); // present 1 of 2 days, not 3 of 4 lessons
+});

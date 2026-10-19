@@ -13,7 +13,7 @@ export default async function StudentsAdmin({ params }: PageProps<"/admin/[cohor
   const { cohort: slug } = await params;
   const data = await getAdminCohort(slug);
   const { cohort, roster } = data;
-  const grades = computeGrades(data);
+  const grades = computeGrades(data, undefined, data.cohort.timezone);
   const missingCodes = roster.filter((r) => r.status === "active" && !r.access_code).length;
   return (
     <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">

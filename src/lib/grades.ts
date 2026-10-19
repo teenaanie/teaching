@@ -5,7 +5,8 @@
 import type { AssessmentKind, Grading } from "./types";
 
 export type GradeAssessment = { id: string; moduleId: string; kind: AssessmentKind; maxScore: number; counts: boolean };
-export type GradeSession = { id: string; moduleId: string | null; counts: boolean };
+/** `day` groups sessions held on the same date: a class day counts once, however many lessons it covered. */
+export type GradeSession = { id: string; moduleId: string | null; counts: boolean; day?: string };
 
 export type GradeInput = {
   modules: { id: string; grading: Grading }[];
@@ -20,6 +21,17 @@ export type GradeInput = {
 export type ComponentResult = { key: string; weight: number; percent: number | null };
 export type ModuleGrade = { moduleId: string; percent: number | null; components: ComponentResult[] };
 
+/** Share of class days attended. A day counts as present if the student was present at any session that day. */
+function dayAttendance(sessions: GradeSession[], marks: Record<string, boolean>): number | null {
+  const days = new Map<string, boolean>();
+  for (const s of sessions) {
+    const key = s.day ?? s.id;
+    days.set(key, (days.get(key) ?? false) || Boolean(marks[s.id]));
+  }
+  if (days.size === 0) return null;
+  return ([...days.values()].filter(Boolean).length / days.size) * 100;
+}
+
 /**
  * Percent for one component. An assessment counts for a student once it is due (missing
  * work is then 0) or as soon as that student has a score for it. Sessions that "count" are past sessions with
@@ -33,10 +45,7 @@ function componentPercent(
 ): number | null {
   if (key === "attendance") {
     const sessions = input.sessions.filter((s) => s.moduleId === moduleId && s.counts);
-    if (sessions.length === 0) return null;
-    const marks = input.attendance[studentId] ?? {};
-    const present = sessions.filter((s) => marks[s.id]).length;
-    return (present / sessions.length) * 100;
+    return dayAttendance(sessions, input.attendance[studentId] ?? {});
   }
   const scores = input.scores[studentId] ?? {};
   const items = input.assessments.filter(
@@ -65,8 +74,5 @@ export function studentGrades(studentId: string, input: GradeInput): ModuleGrade
 }
 
 export function attendancePercent(studentId: string, input: GradeInput): number | null {
-  const sessions = input.sessions.filter((s) => s.counts);
-  if (sessions.length === 0) return null;
-  const marks = input.attendance[studentId] ?? {};
-  return (sessions.filter((s) => marks[s.id]).length / sessions.length) * 100;
+  return dayAttendance(input.sessions.filter((s) => s.counts), input.attendance[studentId] ?? {});
 }

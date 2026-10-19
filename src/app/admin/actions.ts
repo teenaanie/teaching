@@ -7,6 +7,7 @@ import { requireTeacher } from "@/lib/auth";
 import { regenerateSchedule } from "@/lib/cohort-ops";
 import { zonedToUtc } from "@/lib/schedule";
 import { parseQuestions, STARTER_QUESTIONS } from "@/lib/feedback";
+import { localDate } from "@/lib/format";
 import { newAccessCode } from "@/lib/student-session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -33,15 +34,19 @@ function refresh(slug: string) {
 // ---------------------------------------------------------------------------
 // Attendance
 // ---------------------------------------------------------------------------
+/** Saves attendance for a class; it applies to every lesson held on the same day. */
 export async function saveAttendance(sessionId: string, presentIds: string[], studentIds: string[]) {
   const { db } = await requireTeacher();
+  const { data: session } = await db.from("sessions").select("cohort_id, starts_at, cohorts(timezone)").eq("id", sessionId).single();
+  if (!session) fail("Session not found");
+  const tz = (session.cohorts as unknown as { timezone: string }).timezone;
+  const ids = await sessionsOnDay(db, session.cohort_id, localDate(session.starts_at, tz));
   const present = new Set(presentIds);
   const { error } = await db
     .from("attendance")
-    .upsert(studentIds.map((id) => ({ session_id: sessionId, student_id: id, present: present.has(id) })));
+    .upsert((ids.length ? ids : [sessionId]).flatMap((sid) => studentIds.map((id) => ({ session_id: sid, student_id: id, present: present.has(id) }))));
   if (error) fail(error.message);
-  const { data } = await db.from("sessions").select("cohort_id").eq("id", sessionId).single();
-  if (data) refresh(await cohortSlug(db, data.cohort_id));
+  refresh(await cohortSlug(db, session.cohort_id));
 }
 
 // ---------------------------------------------------------------------------
@@ -459,4 +464,51 @@ export async function deleteFeedbackForm(formId: string) {
   const slug = await cohortSlug(db, data.cohort_id);
   refresh(slug);
   redirect(`/admin/${slug}/feedback`);
+}
+
+// ---------------------------------------------------------------------------
+// Attendance register (by class day)
+// ---------------------------------------------------------------------------
+/** Ids of the cohort's scheduled sessions on one local date. */
+async function sessionsOnDay(db: Awaited<ReturnType<typeof requireTeacher>>["db"], cohortId: string, date: string) {
+  const { data: cohort } = await db.from("cohorts").select("timezone").eq("id", cohortId).single();
+  const { data } = await db.from("sessions").select("id, starts_at").eq("cohort_id", cohortId).eq("status", "scheduled");
+  return (data ?? []).filter((s) => localDate(s.starts_at, cohort!.timezone) === date).map((s) => s.id as string);
+}
+
+/**
+ * Marks one student present or absent for a whole class day (every lesson that day).
+ * `present: null` clears the mark.
+ */
+export async function setDayAttendance(cohortId: string, date: string, studentId: string, present: boolean | null) {
+  const { db } = await requireTeacher();
+  const ids = await sessionsOnDay(db, cohortId, date);
+  if (ids.length === 0) fail("No class on that day.");
+  if (present === null) {
+    await db.from("attendance").delete().eq("student_id", studentId).in("session_id", ids);
+  } else {
+    const { error } = await db.from("attendance").upsert(ids.map((id) => ({ session_id: id, student_id: studentId, present })));
+    if (error) fail(error.message);
+  }
+  refresh(await cohortSlug(db, cohortId));
+}
+
+/** Marks every active student present for a class day, keeping anyone already marked absent. */
+export async function markDayPresent(cohortId: string, date: string) {
+  const { db } = await requireTeacher();
+  const ids = await sessionsOnDay(db, cohortId, date);
+  if (ids.length === 0) fail("No class on that day.");
+  const [{ data: roster }, { data: existing }] = await Promise.all([
+    db.from("enrolments").select("student_id").eq("cohort_id", cohortId).eq("status", "active"),
+    db.from("attendance").select("session_id, student_id").in("session_id", ids),
+  ]);
+  const marked = new Set((existing ?? []).map((a) => `${a.session_id}:${a.student_id}`));
+  const rows = (roster ?? []).flatMap((r) =>
+    ids.filter((id) => !marked.has(`${id}:${r.student_id}`)).map((id) => ({ session_id: id, student_id: r.student_id, present: true })),
+  );
+  if (rows.length) {
+    const { error } = await db.from("attendance").insert(rows);
+    if (error) fail(error.message);
+  }
+  refresh(await cohortSlug(db, cohortId));
 }

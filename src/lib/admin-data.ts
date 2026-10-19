@@ -1,6 +1,7 @@
 import "server-only";
 import { notFound } from "next/navigation";
 import { requireTeacher } from "./auth";
+import { localDate } from "./format";
 import { attendancePercent, studentGrades, type GradeInput } from "./grades";
 import type { Assessment, Cohort, CohortAssessment, Course, Lesson, Module, Session } from "./types";
 
@@ -82,7 +83,7 @@ export type GradeSource = {
 };
 
 /** Builds grade inputs and computes per-student module grades + attendance. */
-export function computeGrades(data: GradeSource, now = new Date()) {
+export function computeGrades(data: GradeSource, now = new Date(), cohortTz = "Asia/Kolkata") {
   const lessonModule = new Map(data.outline.modules.flatMap((m) => m.lessons.map((l) => [l.id, m.id] as const)));
   const attendedSessions = new Set(data.attendance.map((a) => a.session_id));
   const settings = new Map(data.cohortAssessments.map((c) => [c.assessment_id, c]));
@@ -101,6 +102,7 @@ export function computeGrades(data: GradeSource, now = new Date()) {
       id: s.id,
       moduleId: s.lesson_id ? lessonModule.get(s.lesson_id) ?? null : null,
       counts: s.status === "scheduled" && new Date(s.starts_at) <= now && attendedSessions.has(s.id),
+      day: localDate(s.starts_at, cohortTz),
     })),
     scores: {},
     attendance: {},

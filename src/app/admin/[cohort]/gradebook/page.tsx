@@ -10,7 +10,7 @@ const pct = (v: number | null | undefined) => (v === null || v === undefined ? "
 export default async function Gradebook({ params }: PageProps<"/admin/[cohort]/gradebook">) {
   const { cohort: slug } = await params;
   const data = await getAdminCohort(slug);
-  const grades = computeGrades(data);
+  const grades = computeGrades(data, undefined, data.cohort.timezone);
   const students = data.roster.filter((r) => r.status === "active");
   const scoreMap = new Map(data.scores.map((s) => [`${s.student_id}:${s.assessment_id}`, s]));
   const modules = data.outline.modules.filter((m) => m.assessments.length > 0 || Object.keys(m.grading).length > 0);

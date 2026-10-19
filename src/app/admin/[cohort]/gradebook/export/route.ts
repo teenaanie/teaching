@@ -4,7 +4,7 @@ import { computeGrades, getAdminCohort } from "@/lib/admin-data";
 export async function GET(_req: Request, ctx: RouteContext<"/admin/[cohort]/gradebook/export">) {
   const { cohort: slug } = await ctx.params;
   const data = await getAdminCohort(slug);
-  const grades = computeGrades(data);
+  const grades = computeGrades(data, undefined, data.cohort.timezone);
   const scores = new Map(data.scores.map((s) => [`${s.student_id}:${s.assessment_id}`, Number(s.score)]));
   const round = (v: number | null) => (v === null ? "" : Math.round(v * 10) / 10);
 

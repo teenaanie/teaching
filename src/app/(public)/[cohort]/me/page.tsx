@@ -71,7 +71,7 @@ export default async function MyProgress({ params }: PageProps<"/[cohort]/me">) 
     attendance: attendance ?? [],
     scores: (scores ?? []).map((s) => ({ ...s, score: Number(s.score) })),
     cohortAssessments: view.cohortAssessments,
-  }).get(studentId)!;
+  }, undefined, cohort.timezone).get(studentId)!;
   const scoreMap = new Map((scores ?? []).map((s) => [s.assessment_id, s]));
   const marks = new Map((attendance ?? []).map((a) => [a.session_id, a.present]));
   const due = new Map(view.cohortAssessments.map((c) => [c.assessment_id, c.due_date]));
