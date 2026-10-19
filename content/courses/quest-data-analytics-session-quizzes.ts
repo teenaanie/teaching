@@ -140,6 +140,100 @@ export const sessionQuizzes: Record<string, AssessmentSeed[]> = {
       },
       { prompt: "Colouring each state by its sales value creates a…", options: ["Treemap", "Choropleth (filled) map", "Line chart", "Box plot"], answer: 1 },
     ]),
+
+    // Two 10-question practice quizzes before dashboards (requested 19 Oct).
+    {
+      slug: "quiz-tableau-elements",
+      kind: "quiz",
+      title: "Quiz: Tableau building blocks",
+      maxScore: 10,
+      lesson: "tableau-comparing-charts",
+      questions: [
+        {
+          prompt: "In Tableau, a blue pill on a shelf means the field is…",
+          options: ["A measure", "Discrete", "A filter", "Continuous"],
+          answer: 1,
+          explanation: "Blue = discrete (separate headers), green = continuous (an axis). This is not the same as dimension vs measure.",
+        },
+        {
+          prompt: "You drag Order Date to Columns and get separate YEAR headers. To get one continuous timeline you…",
+          options: ["Change it to continuous (green)", "Change its type to String", "Turn it into a measure", "Hide the column"],
+          answer: 0,
+        },
+        {
+          prompt: "When you drag Sales into the view, Tableau adds it up by default as…",
+          options: ["AVG(Sales)", "COUNT(Sales)", "SUM(Sales)", "MAX(Sales)"],
+          answer: 2,
+        },
+        {
+          prompt: "Office Supplies has the most order lines but the smallest total sales. Which aggregation shows how many lines each category has?",
+          options: ["SUM", "AVG", "COUNT", "MIN"],
+          answer: 2,
+          explanation: "In our Superstore file: Office Supplies has 23 lines but $1,781 of sales; Furniture has 10 lines and $8,221.",
+        },
+        {
+          prompt: "Which calculated field gives the correct profit ratio for each category?",
+          options: ["[Profit] / [Sales]", "SUM([Profit]) / SUM([Sales])", "AVG([Profit] / [Sales])", "SUM([Profit] / [Sales])"],
+          answer: 1,
+          explanation: "Add up first, then divide. For Furniture this gives −19.2%; the other formulas give −57.4% or −5.7%.",
+        },
+        {
+          prompt: "A globe icon next to the State field means…",
+          options: ["The data came from the internet", "It's a number", "It has missing values", "Tableau knows it's a place and can map it"],
+          answer: 3,
+        },
+        {
+          prompt: "Customer ID looks like a number (e.g. 12520). Should it be a dimension or a measure?",
+          options: ["Dimension: it's a label", "Measure, so we can add it up", "Either, it makes no difference", "Neither"],
+          answer: 0,
+        },
+        {
+          prompt: "You hide the Ship Mode column in Tableau. What happens to the data?",
+          options: ["It's deleted from the file", "It moves to another sheet", "It's still there, just not shown", "Tableau renames it"],
+          answer: 2,
+        },
+        {
+          prompt: "The Products table lists one product twice. You JOIN it to Order on Product ID. What goes wrong?",
+          options: ["Nothing", "The product disappears", "Tableau shows an error and stops", "That product's sales are counted twice, so totals are too high"],
+          answer: 3,
+          explanation: "In our file the Bretford table is listed twice; a careless join pushes total sales from $13,222 to $15,225.",
+        },
+        {
+          prompt: "To show the exact value on top of each bar, drag the measure onto which part of the Marks card?",
+          options: ["Colour", "Size", "Label", "Detail"],
+          answer: 2,
+        },
+      ],
+    },
+    {
+      slug: "quiz-chart-types",
+      kind: "quiz",
+      title: "Quiz: Which chart?",
+      maxScore: 10,
+      lesson: "tableau-special-charts",
+      questions: [
+        { prompt: "Compare total runs scored by the 10 IPL teams.", options: ["Line chart", "Bar chart", "Scatter plot", "Pie chart"], answer: 1 },
+        { prompt: "Show how monthly sales went up and down from 2014 to 2017.", options: ["Line chart", "Pie chart", "Treemap", "Box plot"], answer: 0 },
+        {
+          prompt: "Find out whether IPL batters who score more runs also have a higher strike rate.",
+          options: ["Bar chart", "Pie chart", "Scatter plot", "Highlight table"],
+          answer: 2,
+          explanation: "Two measures against each other: one dot per player.",
+        },
+        { prompt: "Show what share of total sales each of the 3 categories brings in.", options: ["Pie chart", "Line chart", "Scatter plot", "Histogram"], answer: 0, explanation: "A pie works for a few parts of a whole. A bar chart would also be fine." },
+        { prompt: "Show sales by Category and Sub-Category in one view, with box size showing sales.", options: ["Treemap", "Line chart", "Scatter plot", "Histogram"], answer: 0 },
+        { prompt: "Show rice production for each Indian state on a map, darker for more.", options: ["Bar chart", "Line chart", "Pie chart", "Filled (choropleth) map"], answer: 3 },
+        { prompt: "Sales by Region (rows) and Year (columns), with colour showing which cells are biggest.", options: ["Highlight table / heatmap", "Pie chart", "Scatter plot", "Line chart"], answer: 0 },
+        { prompt: "Show how GPA is spread within each major, including the outliers.", options: ["Pie chart", "Treemap", "Box plot", "Line chart"], answer: 2 },
+        { prompt: "How many students scored 0–10, 10–20, 20–30 marks and so on?", options: ["Histogram", "Pie chart", "Scatter plot", "Map"], answer: 0 },
+        {
+          prompt: "Which is the worst choice for comparing sales across 15 sub-categories?",
+          options: ["Sorted bar chart", "Pie chart", "Text table", "Treemap"],
+          answer: 1,
+          explanation: "15 thin slices are impossible to compare. A sorted bar chart is easiest to read.",
+        },
+      ],
+    },
   ],
 
   python: [
