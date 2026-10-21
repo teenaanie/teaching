@@ -56,6 +56,7 @@ export default async function AttendanceAdmin({ params }: PageProps<"/admin/[coh
       ) : (
         <AttendanceRegister
           cohortId={data.cohort.id}
+          cohortSlug={slug}
           students={students.map((s) => ({ id: s.id, name: s.full_name, roll: s.roll_no }))}
           days={days}
         />

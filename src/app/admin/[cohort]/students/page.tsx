@@ -55,9 +55,17 @@ export default async function StudentsAdmin({ params }: PageProps<"/admin/[cohor
                 </td>
                 <td className="py-2 pr-3 text-right">{pct(grades.get(r.id)?.attendance)}</td>
                 <td className="py-2 text-right">
-                  <form action={setEnrolmentStatus.bind(null, cohort.id, r.id, r.status === "active" ? "dropped" : "active")}>
-                    <button className="text-xs text-teal hover:underline">{r.status === "active" ? "Mark dropped" : "Re-enrol"}</button>
-                  </form>
+                  <div className="flex items-center justify-end gap-3">
+                    <Link
+                      href={`/admin/${slug}/students/${r.id}#details`}
+                      className="rounded-full border border-teal px-3 py-0.5 text-xs font-bold text-teal no-underline hover:bg-teal-soft"
+                    >
+                      Edit
+                    </Link>
+                    <form action={setEnrolmentStatus.bind(null, cohort.id, r.id, r.status === "active" ? "dropped" : "active")}>
+                      <button className="text-xs text-teal hover:underline">{r.status === "active" ? "Mark dropped" : "Re-enrol"}</button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             ))}

@@ -52,8 +52,9 @@ export default async function StudentPage({ params }: PageProps<"/admin/[cohort]
         </dl>
       </div>
 
-      <section className="rounded-2xl border border-line bg-card p-5">
-        <h2 className="font-display text-xl font-semibold">Details</h2>
+      <section id="details" className="scroll-mt-20 rounded-2xl border border-line bg-card p-5">
+        <h2 className="font-display text-xl font-semibold">Edit details</h2>
+        <p className="text-sm text-muted">Change the name, roll number or email, then press Save. Marks and attendance stay with the student.</p>
         <ActionForm action={updateStudent.bind(null, cohort.id, student.id)} submit="Save details" className="mt-3 grid gap-3">
           <div className="grid gap-3 sm:grid-cols-3">
             <label className="grid gap-1 text-sm font-bold">

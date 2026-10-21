@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { markDayPresent, setDayAttendance } from "../../actions";
 
@@ -8,7 +9,17 @@ type Student = { id: string; name: string; roll: string };
 
 const pct = (n: number, d: number) => (d === 0 ? "—" : `${Math.round((n / d) * 100)}%`);
 
-export function AttendanceRegister({ cohortId, students, days: initial }: { cohortId: string; students: Student[]; days: RegisterDay[] }) {
+export function AttendanceRegister({
+  cohortId,
+  cohortSlug,
+  students,
+  days: initial,
+}: {
+  cohortId: string;
+  cohortSlug: string;
+  students: Student[];
+  days: RegisterDay[];
+}) {
   const [days, setDays] = useState(initial);
   const [error, setError] = useState("");
   const [, start] = useTransition();
@@ -77,7 +88,9 @@ export function AttendanceRegister({ cohortId, students, days: initial }: { coho
                 <tr key={st.id} className={low ? "bg-accent-soft" : ""}>
                   <td className="sticky left-0 z-10 whitespace-nowrap bg-inherit px-3 py-1.5">
                     <span className="mr-2 font-mono text-xs text-muted">{st.roll}</span>
-                    {st.name}
+                    <Link href={`/admin/${cohortSlug}/students/${st.id}#details`} className="hover:underline" title="Open student details">
+                      {st.name}
+                    </Link>
                   </td>
                   {days.map((d) => {
                     const v = d.marks[st.id];
