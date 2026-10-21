@@ -234,6 +234,109 @@ export const sessionQuizzes: Record<string, AssessmentSeed[]> = {
         },
       ],
     },
+
+    // Dashboards session demo dataset (requested 21 Oct). Numbers checked against the workbook.
+    {
+      slug: "quiz-global-electronics",
+      kind: "quiz",
+      title: "Quiz: Global Electronics Retailer",
+      maxScore: 10,
+      lesson: "tableau-dashboards",
+      questions: [
+        {
+          prompt: "The data has no Revenue column. Which calculated field gives the revenue of each sales line?",
+          options: ["SUM([Quantity])", "[Unit Sale Price USD] - [Unit Cost USD]", "[Quantity] * [Unit Sale Price USD]", "COUNT([Order Number]) * [Unit Cost USD]"],
+          answer: 2,
+          explanation: "Quantity × sale price. (Sale price − cost is profit per item, not revenue.)",
+        },
+        {
+          prompt: "COUNT of Order Number shows 62,884, but the business only had 26,326 orders. Why?",
+          options: [
+            "One order has several lines (one per product), so COUNT counts lines. Use Count (Distinct) instead.",
+            "Tableau counts blank rows twice",
+            "The Customers table added extra rows",
+            "62,884 is right; 26,326 is a typo",
+          ],
+          answer: 0,
+        },
+        {
+          prompt: "Which is the correct Profit Margin calculation for a category?",
+          options: ["AVG([Profit] / [Revenue])", "SUM([Profit] / [Revenue])", "[Profit] - [Revenue]", "SUM([Profit]) / SUM([Revenue])"],
+          answer: 3,
+          explanation: "Add up first, then divide. Averaging each line's margin gives a different, wrong answer.",
+        },
+        {
+          prompt: "On the yearly chart, 2021 revenue is only about $1M compared with $9.3M in 2020. What is the best explanation?",
+          options: [
+            "The company nearly shut down in 2021",
+            "The data stops on 20 Feb 2021, so 2021 only has 7 weeks of sales",
+            "Tableau is using AVG instead of SUM",
+            "Online sales were left out of 2021",
+          ],
+          answer: 1,
+          explanation: "Always check the date range. Filter out or label a partial period.",
+        },
+        {
+          prompt: "You want one line per year, with the months Jan–Dec along the bottom, to see if there is a busy season. How do you set it up?",
+          options: [
+            "Green MONTH(Order Date) on Columns, nothing on Color",
+            "YEAR(Order Date) on Columns and MONTH on Rows",
+            "Blue MONTH(Order Date) on Columns, Revenue on Rows, YEAR(Order Date) on Color",
+            "Order Date on Filters only",
+          ],
+          answer: 2,
+          explanation: "Blue (discrete) month gives Jan–Dec; YEAR on Color draws a separate line for each year.",
+        },
+        {
+          prompt: "Movie DVDs sell the most units (28,802), but Desktops bring in the most revenue ($9.9M). What does this tell you?",
+          options: [
+            "Cheap items sell in large numbers; expensive items earn most of the money. Always ask “most by what?”",
+            "The data is wrong",
+            "DVDs must have a higher profit than desktops",
+            "Quantity and revenue always give the same ranking",
+          ],
+          answer: 0,
+        },
+        {
+          prompt: "Only online orders have a Delivery Date; in-store purchases are blank. What does AVG(Delivery Days) give you?",
+          options: [
+            "Wrong numbers, because blanks count as 0",
+            "An error",
+            "The average for in-store purchases only",
+            "The average for online orders only, because AVG ignores blanks",
+          ],
+          answer: 3,
+          explanation: "About 4.5 days overall, improving from 7.3 days in 2016 to 4.0 in 2020.",
+        },
+        {
+          prompt: "The Stores sheet lists “Online” as a Country. What is the best way to compare online and in-store sales?",
+          options: [
+            "Delete the Online rows",
+            "Create a calculated field: IF [StoreKey] = 0 THEN \"Online\" ELSE \"In store\" END",
+            "Put Country (Stores) on a map",
+            "Rename Online to United States",
+          ],
+          answer: 1,
+          explanation: "Online is a sales channel, not a place. It is about 20% of revenue.",
+        },
+        {
+          prompt: "The US is 54% of revenue and the UK is next. Which chart makes it easiest to see how many times bigger the US is?",
+          options: ["Filled map", "Pie chart with 8 slices", "Sorted bar chart", "Scatter plot"],
+          answer: 2,
+          explanation: "A map shows where; bars of the same baseline show how much more.",
+        },
+        {
+          prompt: "On your dashboard, you want a click on a country in the map to filter all the other charts. What do you do?",
+          options: [
+            "Add Country to every sheet's Rows",
+            "Select the map on the dashboard and turn on Use as Filter (the funnel icon)",
+            "Create a new calculated field",
+            "Change the Marks type to Map",
+          ],
+          answer: 1,
+        },
+      ],
+    },
   ],
 
   python: [
