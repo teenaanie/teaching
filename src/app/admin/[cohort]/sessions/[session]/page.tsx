@@ -22,10 +22,15 @@ export default async function SessionAdmin({ params }: PageProps<"/admin/[cohort
   const students = data.roster.filter((r) => r.status === "active");
   const quizzes = data.outline.modules.flatMap((m) => m.assessments).filter((a) => a.kind === "quiz" && a.lesson_id === session.lesson_id);
   const openQuizzes = new Set(data.cohortAssessments.filter((c) => c.is_open).map((c) => c.assessment_id));
+  type QuestionRow = { assessment_id: string; position: number; prompt: string; options: string[]; answer_index: number; explanation: string | null };
   const { data: questionRows } = quizzes.length
-    ? await createAdminClient().from("quiz_questions").select("assessment_id").in("assessment_id", quizzes.map((q) => q.id))
-    : { data: [] as { assessment_id: string }[] };
-  const questionCount = (id: string) => (questionRows ?? []).filter((r) => r.assessment_id === id).length;
+    ? await createAdminClient()
+        .from("quiz_questions")
+        .select("assessment_id, position, prompt, options, answer_index, explanation")
+        .in("assessment_id", quizzes.map((q) => q.id))
+        .order("position")
+    : { data: [] as QuestionRow[] };
+  const questionsFor = (id: string) => ((questionRows ?? []) as QuestionRow[]).filter((r) => r.assessment_id === id);
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr]">
@@ -89,7 +94,25 @@ export default async function SessionAdmin({ params }: PageProps<"/admin/[cohort
             <h2 className="text-xs font-bold uppercase tracking-widest text-muted">Quiz</h2>
             <div className="mt-2 grid gap-2">
               {quizzes.map((q) => (
-                <QuizToggle key={q.id} cohortId={data.cohort.id} assessmentId={q.id} title={q.title} open={openQuizzes.has(q.id)} questions={questionCount(q.id)} />
+                <div key={q.id} className="grid gap-1">
+                  <QuizToggle cohortId={data.cohort.id} assessmentId={q.id} title={q.title} open={openQuizzes.has(q.id)} questions={questionsFor(q.id).length} />
+                  {questionsFor(q.id).length > 0 && (
+                    <details className="rounded-xl border border-line bg-card px-4 py-2">
+                      <summary className="cursor-pointer text-sm font-bold text-teal">Answer key</summary>
+                      <ol className="mt-3 grid list-decimal gap-3 pl-5 text-sm">
+                        {questionsFor(q.id).map((qq) => (
+                          <li key={qq.position}>
+                            <p>{qq.prompt}</p>
+                            <p className="mt-1 font-bold text-ok">
+                              {String.fromCharCode(65 + qq.answer_index)}) {qq.options[qq.answer_index]}
+                            </p>
+                            {qq.explanation && <p className="mt-0.5 text-muted">{qq.explanation}</p>}
+                          </li>
+                        ))}
+                      </ol>
+                    </details>
+                  )}
+                </div>
               ))}
             </div>
             <p className="mt-2 text-sm text-muted">
