@@ -494,6 +494,143 @@ A **dashboard** puts several charts on one screen so someone can answer their qu
 2. Add a **filter** and set it to apply to all sheets
 3. Give it a title that states the insight, e.g. "Laptop sales doubled in Q4", not "Sales Dashboard"
 `,
+          notesMd: `
+## Demo: Global Electronics Retailer, 20 questions
+
+Students know this dataset from Assignment 4. Pick 8–10 to **build live** and **explain** the rest from a finished workbook. Every answer below was calculated from the workbook (orders 1 Jan 2016 – 20 Feb 2021).
+
+**Set up once (5 min, before class if you can):**
+
+1. Connect the Excel file → drag **Sales** in → **double-click it** → join **Products** (ProductKey), **Customers** (CustomerKey), **Stores** (StoreKey). Row count must stay **62,884**.
+2. Calculated fields:
+   - \`Revenue\` = \`[Quantity] * [Unit Sale Price USD]\`
+   - \`Profit\` = \`[Quantity] * ([Unit Sale Price USD] - [Unit Cost USD])\`
+   - \`Profit Margin\` = \`SUM([Profit]) / SUM([Revenue])\` → format as %
+   - \`Age at Order\` = \`DATEDIFF('year', [Birthday], [Order Date])\`
+   - \`Channel\` = \`IF [StoreKey] = 0 THEN "Online" ELSE "In store" END\`
+   - \`Delivery Days\` = \`DATEDIFF('day', [Order Date], [Delivery Date])\`
+3. Format Revenue and Profit as currency in millions (Default Properties → Number Format).
+
+**Tip for every question:** read the question aloud, ask students to **guess first**, then build. The guess is what makes them remember it.
+
+---
+
+### A. The big picture
+
+**Q1. How big is the business? Total revenue, profit and margin.**
+- **Build:** new sheet → drag \`Revenue\` to Text. New sheets for \`Profit\` and \`Profit Margin\`. (Or Measure Names / Measure Values for all three in one.)
+- **Answer:** Revenue **$55.8M**, profit **$32.7M**, margin **58.6%**.
+- **Tip:** these become the "KPI cards" at the top of the dashboard. A CEO always wants the headline number first.
+
+**Q2. How many orders and how many customers?**
+- **Build:** \`Order Number\` to Text → right-click → Measure → **Count (Distinct)**. Same with \`CustomerKey\`.
+- **Answer:** **26,326 orders** and **11,887 customers** who bought.
+- **Tip:** ask why plain Count gives **62,884**. One order has several lines (products), so Count counts lines, not orders. Also: the Customers sheet lists **15,266** people, but only 11,887 bought (with an inner join, the others drop out). Good "which number is right?" discussion.
+
+**Q3. What is the average order value (AOV)?**
+- **Build:** calculated field \`AOV\` = \`SUM([Revenue]) / COUNTD([Order Number])\`.
+- **Answer:** about **$2,118 per order**. An order has about **7.5 items** on average.
+- **Tip:** "add up first, then divide". \`AVG([Revenue])\` gives the average *line*, not the average *order*.
+
+### B. Over time
+
+**Q4. Which was the best year?**
+- **Build:** \`YEAR(Order Date)\` to Columns, \`Revenue\` to Rows → bar chart. Add Revenue to Label.
+- **Answer:** **2019, $18.3M**. 2016 $6.9M → 2017 $7.4M → 2018 $12.8M → 2019 $18.3M → 2020 $9.3M.
+- **Tip:** someone will say "2021 crashed to $1M". Only 7 weeks of 2021 are in the data. Filter it out or label it "partial".
+
+**Q5. What happened in 2020?**
+- **Build:** green \`MONTH(Order Date)\` (with year) to Columns, \`Order Number\` (Count Distinct) to Rows → line chart.
+- **Answer:** Jan–Feb 2020 were the **highest months ever** (1,027 and 1,124 orders). From March they dropped sharply: May 2020 had 455 orders against 808 in May 2019, and by November only 149.
+- **Tip:** ask what happened in March 2020. Data shows the *what*; the world explains the *why* (the pandemic).
+
+**Q6. Is there a busy season?**
+- **Build:** blue \`MONTH(Order Date)\` (Jan–Dec only) to Columns, \`Revenue\` to Rows, \`YEAR(Order Date)\` to Color. One line per year.
+- **Answer:** **December, January and February** are the peak every year. **April is always the quietest** (only 26–80 orders in any April).
+- **Tip:** lines that rise and fall together = a season, not luck. Ask how a CEO should use this (stock up in November, run promotions in April).
+
+**Q7. Are customers spending less per order over time?**
+- **Build:** \`YEAR(Order Date)\` to Columns, the \`AOV\` field from Q3 to Rows → line.
+- **Answer:** yes, slowly: **$2,425 in 2016 → $2,005 in 2020**, while the number of orders grew 3×.
+- **Tip:** growth came from *more orders*, not *bigger orders*. Two charts together tell this, one alone doesn't.
+
+### C. Products
+
+**Q8. Which category brings in the most revenue?**
+- **Build:** \`Category\` to Rows, \`Revenue\` to Columns, sort descending. Label → Quick Table Calculation → Percent of Total.
+- **Answer:** **Computers, $19.3M (35%)**, almost double Home Appliances ($10.8M).
+- **Tip:** this is the "one bar is much longer" moment. Ask: what's the risk if computer sales drop?
+
+**Q9. Which category is most profitable (margin, not total)?**
+- **Build:** same as Q8, then \`Profit Margin\` to Color (or swap Revenue for Profit Margin on Columns).
+- **Answer:** **Music, Movies and Audio Books (61%)** has the best margin; **Games and Toys (55%)** the worst. All are between 55–61%.
+- **Tip:** biggest ≠ most profitable. But here the margins are close, so the honest answer is "margins are similar; volume is what matters".
+
+**Q10. What sells most by quantity? Is it the same as by revenue?**
+- **Build:** \`Subcategory\` to Rows, \`Quantity\` to Columns, Top 10 filter. Then swap Quantity for Revenue.
+- **Answer:** by quantity, **Movie DVDs (28,802 units)** beat Desktops (20,626). By revenue, **Desktops ($9.9M)** win easily.
+- **Tip:** cheap things sell in large numbers; expensive things make the money. Always ask "most by what?".
+
+**Q11. What are the top 10 products?**
+- **Build:** \`Product Name\` to Rows, \`Revenue\` to Columns, Product Name to Filters → Top → 10 by Revenue.
+- **Answer:** the top 3 are all **desktop PCs** (WWI Desktop PC2.33 X2330 Black, $505K, then two Adventure Works desktops).
+- **Tip:** long product names are hard to read. Show students how to resize the row header or use an alias.
+
+**Q12. Which brand sells the most?**
+- **Build:** \`Brand\` to Rows, \`Revenue\` to Columns, \`Profit Margin\` to Color.
+- **Answer:** **Adventure Works ($11.8M)**, Contoso ($10.8M), Wide World Importers ($9.2M). Tailspin Toys is last ($0.7M, 55% margin).
+- **Tip:** Brand vs Category: a good question to ask is "which one would you show the CEO?". Category is a decision they can act on.
+
+**Q13. Which product colour sells best?** (a fun one)
+- **Build:** \`Color\` to Rows, \`Revenue\` to Columns. Then Color onto the Color shelf, and Edit Colors to match the names.
+- **Answer:** **Black ($13.9M)**, then White ($11.9M), Silver ($10.4M).
+- **Tip:** a quick win for engagement; also shows that a dimension can be used both as a label and as a colour.
+
+### D. Geography and channel
+
+**Q14. Which countries buy the most?**
+- **Build:** double-click \`Country\` (from Customers) → map → Marks: **Map** → \`Revenue\` to Color. Bar chart version: Show Me → horizontal bars.
+- **Answer:** **United States $29.9M (54%)**, then UK $7.1M, Germany $5.4M, Canada $4.7M. Only 8 countries.
+- **Tip:** compare map and bar. Map = *where*; bar = *how much more*. Students should be able to say which to use when.
+
+**Q15. How much do we sell online?**
+- **Build:** \`Channel\` to Rows (or Color on a pie), \`Revenue\` → Percent of Total.
+- **Answer:** **Online is about 20%** of revenue (≈$11.4M); in-store stores 80%.
+- **Tip:** the Stores sheet lists "Online" as a country (StoreKey 0). Ask: is "Online" a place? This is why we made the Channel field.
+
+**Q16. Which store sells the most? Does store size matter?**
+- **Build:** \`StoreKey\` + \`State (Stores)\` to Rows (filter Channel = In store), \`Revenue\` to Columns. Then a scatter: \`Square Meters\` vs \`Revenue\`, with StoreKey on Detail.
+- **Answer:** top stores are in the US: **Nevada ($1.42M), Kansas ($1.39M), Nebraska ($1.38M)**, all 2,000 m². The smallest seller is Northern Territory, Australia ($15K).
+- **Tip:** the scatter will show bigger stores tend to sell more. Ask: does that mean we should build bigger stores? (Correlation vs cause.)
+
+**Q17. How long does online delivery take? Is it improving?**
+- **Build:** \`YEAR(Order Date)\` to Columns, \`Delivery Days\` to Rows → right-click → **Average**.
+- **Answer:** average **about 4.5 days**. Improved every year: **7.3 days in 2016 → 4.0 in 2020**.
+- **Tip:** only online orders have a Delivery Date; in-store purchases are blank. Ask "what does a blank mean here?" before building. AVG ignores blanks, which is what we want.
+
+### E. Customers
+
+**Q18. Do men or women spend more?**
+- **Build:** \`Gender\` to Columns, \`Revenue\` to Rows. Pie works too (only 2 slices).
+- **Answer:** almost equal: **men $28.3M, women $27.4M**.
+- **Tip:** "no difference" is a finding too. Don't let students force a story that isn't there.
+
+**Q19. Which age group spends the most?**
+- **Build:** right-click \`Age at Order\` → Create → Bins (size 10), or make an Age Group field with IF/ELSEIF. Age bins to Rows, \`Revenue\` to Columns. Add \`Gender\` to Columns for a highlight table.
+- **Answer:** **65+ spends the most (about $15.8M)**, almost double any 10-year group (each $8.2–8.5M). Under 25: $6.6M.
+- **Tip:** "65+" covers more years than the other groups, which partly explains it. Ask students to say this honestly in the title. Use *age at order*, not age today.
+
+**Q20. How many customers come back?**
+- **Build:** calculated field \`Orders per Customer\` = \`{ FIXED [CustomerKey] : COUNTD([Order Number]) }\`. Drag it to Columns as a **Dimension**, \`CustomerKey\` (Count Distinct) to Rows → histogram-like bar.
+- **Answer:** **61% of customers ordered more than once** (7,272 of 11,887). One customer placed 14 orders.
+- **Tip:** first look at a **LOD** ("level of detail") expression: "for each customer, count their orders". Keep it short; it's a preview of what Pandas \`groupby\` does later.
+
+---
+
+### Dashboard to finish (last 15 min)
+
+Top row: KPI text (Q1). Middle: monthly trend (Q5). Bottom: Category bars (Q8) + Country map (Q14). Set the map **Use as Filter**, so clicking USA filters everything. Title = the finding, e.g. *"Sales grew 2.6× to 2019, then halved in 2020; computers and the US drive the business."*
+`,
         },
       ],
       assessments: [
