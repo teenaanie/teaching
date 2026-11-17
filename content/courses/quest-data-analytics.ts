@@ -1,4 +1,5 @@
 import { colab, drive, gdoc, gsheet, gslides, type CourseSeed } from "../types";
+import { pythonNotes } from "./quest-data-analytics-python-notes";
 import { sessionQuizzes } from "./quest-data-analytics-session-quizzes";
 
 // ---------------------------------------------------------------------------
@@ -749,6 +750,7 @@ Top row: KPI text (Q1). Middle: monthly trend (Q5). Bottom: Category bars (Q8) +
       lessons: [
         {
           slug: "python-intro",
+          notesMd: pythonNotes["python-intro"],
           title: "Hello Python: Colab and data types",
           summary: "What Python is, using Google Colab, variables, and numeric, string and boolean types.",
           resources: [
@@ -776,6 +778,7 @@ Use \`type(x)\` to check a variable's type and \`int()\`, \`float()\`, \`str()\`
         },
         {
           slug: "python-data-structures",
+          notesMd: pythonNotes["python-data-structures"],
           title: "Lists, tuples, dictionaries and sets",
           summary: "Storing many values: lists, tuples, dicts and sets, and the methods you'll use most.",
           resources: [
@@ -785,6 +788,7 @@ Use \`type(x)\` to check a variable's type and \`int()\`, \`float()\`, \`str()\`
         },
         {
           slug: "python-operators-conditionals",
+          notesMd: pythonNotes["python-operators-conditionals"],
           title: "Operators and if/else",
           summary: "Arithmetic, comparison and logical operators; making decisions with if / elif / else.",
           resources: [
@@ -794,6 +798,7 @@ Use \`type(x)\` to check a variable's type and \`int()\`, \`float()\`, \`str()\`
         },
         {
           slug: "python-loops",
+          notesMd: pythonNotes["python-loops"],
           title: "Loops: for, while, break and continue",
           summary: "Repeating work with for and while loops; break and continue.",
           resources: [
@@ -804,12 +809,14 @@ Use \`type(x)\` to check a variable's type and \`int()\`, \`float()\`, \`str()\`
         },
         {
           slug: "python-for-analytics",
+          notesMd: pythonNotes["python-for-analytics"],
           title: "Why Python for data analytics?",
           summary: "Analytics recap, real-world uses, Python vs Excel, and careers in data.",
           resources: [{ type: "slides", title: "Data Analytics with Python (slides)", url: py.slides }],
         },
         {
           slug: "python-practice",
+          notesMd: pythonNotes["python-practice"],
           title: "Python practice lab",
           summary: "Mixed practice on everything so far, plus the Python basics quiz.",
           resources: [
@@ -820,6 +827,7 @@ Use \`type(x)\` to check a variable's type and \`int()\`, \`float()\`, \`str()\`
         },
         {
           slug: "pandas-1",
+          notesMd: pythonNotes["pandas-1"],
           title: "Pandas 1: DataFrames and reading data",
           summary: "Key Python libraries; loading a CSV into a DataFrame; head, info, describe.",
           resources: [
@@ -830,6 +838,7 @@ Use \`type(x)\` to check a variable's type and \`int()\`, \`float()\`, \`str()\`
         },
         {
           slug: "pandas-2",
+          notesMd: pythonNotes["pandas-2"],
           title: "Pandas 2: selecting, filtering and sorting",
           summary: "Choosing columns and rows, boolean filters, sorting values.",
           resources: [
@@ -839,6 +848,7 @@ Use \`type(x)\` to check a variable's type and \`int()\`, \`float()\`, \`str()\`
         },
         {
           slug: "pandas-3",
+          notesMd: pythonNotes["pandas-3"],
           title: "Pandas 3: cleaning messy data",
           summary: "Missing values, wrong types, duplicates and messy text, using the Indian street foods dataset.",
           resources: [
@@ -850,6 +860,7 @@ Use \`type(x)\` to check a variable's type and \`int()\`, \`float()\`, \`str()\`
         },
         {
           slug: "pandas-4",
+          notesMd: pythonNotes["pandas-4"],
           title: "Pandas 4: group, aggregate and reshape",
           summary: "groupby, agg, pivot tables and melting/transposing data.",
           resources: [
@@ -860,6 +871,7 @@ Use \`type(x)\` to check a variable's type and \`int()\`, \`float()\`, \`str()\`
         },
         {
           slug: "pandas-5",
+          notesMd: pythonNotes["pandas-5"],
           title: "Pandas 5: end-to-end cleaning practice",
           summary: "A full clean-up on the dirty Orders dataset, from raw file to tidy table.",
           resources: [
@@ -869,6 +881,7 @@ Use \`type(x)\` to check a variable's type and \`int()\`, \`float()\`, \`str()\`
         },
         {
           slug: "matplotlib-1",
+          notesMd: pythonNotes["matplotlib-1"],
           title: "Matplotlib 1: line, bar and scatter",
           summary: "Plotting with Matplotlib from Pandas data: titles, labels and colours.",
           resources: [
@@ -879,6 +892,7 @@ Use \`type(x)\` to check a variable's type and \`int()\`, \`float()\`, \`str()\`
         },
         {
           slug: "matplotlib-2",
+          notesMd: pythonNotes["matplotlib-2"],
           title: "Matplotlib 2: stacked bars, histograms and subplots",
           summary: "More chart types and multiple plots per figure, using IPL 2024 batting data.",
           resources: [
@@ -889,6 +903,7 @@ Use \`type(x)\` to check a variable's type and \`int()\`, \`float()\`, \`str()\`
         },
         {
           slug: "project-build",
+          notesMd: pythonNotes["project-build"],
           title: "Project: Tableau + Python, end to end",
           summary: "The steps of a data analysis project: question, collect, clean, analyse, visualise, present.",
           bodyMd: `
@@ -903,6 +918,7 @@ Pick a dataset (your own, or one from class). In teams of 2–3 that you choose 
         },
         {
           slug: "project-present",
+          notesMd: pythonNotes["project-present"],
           title: "Project presentations",
           summary: "Each team presents their Tableau + Python project.",
         },
