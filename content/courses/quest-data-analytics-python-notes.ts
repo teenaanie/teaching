@@ -1,10 +1,10 @@
 // Teacher notes for the Python module, keyed by lesson slug.
 // One running story ties the module together: the class is the new data team at
-// "Thattukada Co.", a street-food chain that started as one cart in Kochi.
+// "Dastarkhwan Kitchen", a food business that started as home-made iftar boxes in Mohammadwadi, Pune.
 // Code fences use ~~~ so the markdown needs no escaping inside template literals.
 
 const story = `
-> **Running story: Thattukada Co.** Meera started with one thattukada (roadside food cart) near Kochi's Marine Drive. Now she has carts in 15 cities, and she has just hired *this class* as her data team. Each session she brings a new problem, and the Python topic of the day is the tool that solves it.
+> **Running story: Dastarkhwan Kitchen.** Ayesha, a BCA graduate from Azam College, started by selling home-made iftar boxes to neighbours in Mohammadwadi over WhatsApp one Ramzan. Today Dastarkhwan Kitchen has outlets across Pune, takes orders on Swiggy and Zomato, and is signing franchise partners in other cities. She has just hired *this class* as her data team. Each session she brings a new problem, and the Python topic of the day is the tool that solves it.
 `;
 
 export const pythonNotes: Record<string, string> = {
@@ -15,26 +15,26 @@ ${story}
 
 | Time | What | Notes |
 |---|---|---|
-| 0–10 | Hook | Tell the true story: in Oct 2020 England's health agency lost about **16,000 COVID cases** because an old Excel file format stops at about 65,000 rows. Ask: "Would you trust a spreadsheet with your city's data?" Then introduce Meera: "She doesn't want that to happen to her. That's why she hired you." |
-| 10–20 | Colab setup | Everyone opens the session notebook → **File → Save a copy in Drive**. First cell: \`print("Hello, Thattukada")\`. Shift + Enter. |
-| 20–40 | Meera's menu card | Live-code one menu item as variables (below). Ask for each one: "What type is this?" then check with \`type()\`. |
-| 40–60 | WhatsApp orders | Meera's orders arrive as messy names. Strings come in as the cleaning tool (below). Students fix 3 names themselves. |
+| 0–10 | Hook | Tell the true story: in Oct 2020 England's health agency lost about **16,000 COVID cases** because an old Excel file format stops at about 65,000 rows. Ask: "Would you trust a spreadsheet with your city's data?" Then introduce Ayesha: "She doesn't want that to happen to her. That's why she hired you." |
+| 10–20 | Colab setup | Everyone opens the session notebook → **File → Save a copy in Drive**. First cell: \`print("Hello, Dastarkhwan")\`. Shift + Enter. |
+| 20–40 | Ayesha's menu card | Live-code one menu item as variables (below). Ask for each one: "What type is this?" then check with \`type()\`. |
+| 40–60 | WhatsApp orders | Ayesha's orders arrive as messy names. Strings come in as the cleaning tool (below). Students fix 3 names themselves. |
 | 60–80 | Assignment 1 | Start Assignment 1 in class. It's the same skills: types, conversion, string methods. |
-| 80–90 | Cliffhanger | "Tomorrow Meera sends the whole day's order book. One variable per order won't work..." |
+| 80–90 | Cliffhanger | "Tomorrow Ayesha sends the whole day's order book. One variable per order won't work..." |
 
 ~~~python
-item = "Pazham pori"      # str
-price = 15                # int
+item = "Chicken biryani"  # str
+price = 180               # int
 rating = 4.6              # float
 is_veg = True             # bool
 print(item, "costs ₹", price)
 
-raw = "   aNJU k  "
-print(raw.strip().title())          # Anju K
-print("7012-345-678".replace("-", ""))
+raw = "   zAID k  "
+print(raw.strip().title())          # Zaid K
+print("98220-12345".replace("-", ""))
 ~~~
 
-**For students who already know this:** "Boss level": take \`"  aNJU   k  "\` (several spaces in the middle) and get \`"Anju K"\`. Hint: \`" ".join(raw.split())\`. The first to solve it becomes a helper for the rest of the session.
+**For students who already know this:** "Boss level": take \`"  zAID   k  "\` (several spaces in the middle) and get \`"Zaid K"\`. Hint: \`" ".join(raw.split())\`. The first to solve it becomes a helper for the rest of the session.
 
 **Watch for:** \`input()\` always returns a string. Have them check \`type(input("Age? "))\` before they try to add 1 to it.
 `,
@@ -47,25 +47,25 @@ ${story}
 | Time | What | Notes |
 |---|---|---|
 | 0–10 | Recap | 3 quick questions from Chapter 1 (types, \`.strip()\`, \`.title()\`). |
-| 10–25 | Story | Meera: "Today 8 orders came in. Some people came twice. How many *different* customers did we have? What did we earn?" Write the questions on the board and don't answer yet. |
-| 25–55 | Four containers | Introduce each one as the answer to one of Meera's needs (table below). Live-code each. |
-| 55–75 | Solve Meera's questions | In pairs: unique customers (set), the price of an item (dict lookup), the number of orders (\`len\` of the list). |
+| 10–25 | Story | Ayesha: "Today 8 orders came in. Some people came twice. How many *different* customers did we have? What did we earn?" Write the questions on the board and don't answer yet. |
+| 25–55 | Four containers | Introduce each one as the answer to one of Ayesha's needs (table below). Live-code each. |
+| 55–75 | Solve Ayesha's questions | In pairs: unique customers (set), the price of an item (dict lookup), the number of orders (\`len\` of the list). |
 | 75–90 | Assignment 2 | Start Assignment 2 in class. |
 
-| Meera needs... | Container | Why |
+| Ayesha needs... | Container | Why |
 |---|---|---|
-| Today's orders, in order | **list** \`["Anju", "Rahul", "Anju"]\` | Ordered, can grow |
-| The cart's location (never changes) | **tuple** \`(9.98, 76.28)\` | Fixed, can't be edited by mistake |
-| The menu: item → price | **dict** \`{"Pazham pori": 15, "Chai": 12}\` | Look up by name |
+| Today's orders, in order | **list** \`["Zaid", "Sana", "Zaid"]\` | Ordered, can grow |
+| The kitchen's location (never changes) | **tuple** \`(18.47, 73.92)\` | Fixed, can't be edited by mistake |
+| The menu: item → price | **dict** \`{"Chicken biryani": 180, "Irani chai": 20}\` | Look up by name |
 | The unique customers | **set** \`set(orders)\` | Duplicates vanish automatically |
 
 ~~~python
-orders = ["Anju", "Rahul", "Anju", "Fathima", "Rahul", "Joel", "Anju", "Sneha"]
+orders = ["Zaid", "Sana", "Zaid", "Imran", "Sana", "Priya", "Zaid", "Arman"]
 print(len(orders), "orders")              # 8
 print(len(set(orders)), "customers")      # 5
-menu = {"Pazham pori": 15, "Chai": 12, "Egg puffs": 20}
-print(menu["Chai"])
-menu["Kappa"] = 40                        # new item on the menu
+menu = {"Chicken biryani": 180, "Irani chai": 20, "Kheema samosa": 25}
+print(menu["Irani chai"])
+menu["Sheer khurma"] = 60                 # new item on the menu
 ~~~
 
 **Boss level:** "Who is the most loyal customer?" (\`max(set(orders), key=orders.count)\`) The faster students can explain *why* it works.
@@ -79,7 +79,7 @@ ${story}
 | Time | What | Notes |
 |---|---|---|
 | 0–10 | Recap | "Which container for...?" game: a phone contact list, roll numbers, the days of the week. |
-| 10–20 | Story | Meera's offers: students get 10% off; any bill over ₹200 gets a free chai; seniors (60+) get 15% off. "The cashier keeps getting this wrong. Write the rules so the computer does it." |
+| 10–20 | Story | Ayesha's offers: students get 10% off; any bill over ₹200 gets a free chai; seniors (60+) get 15% off. "The cashier keeps getting this wrong. Write the rules so the computer does it." |
 | 20–50 | Operators + if/elif/else | Live-code the billing rules (below). Ask: what if someone is a student *and* a senior? Which rule wins? The order of the \`elif\`s matters. |
 | 50–80 | Assignment 3 | The age → ticket-price question in Assignment 3 is the same pattern. Let them start in class. |
 | 80–90 | Share | One student reads their code aloud. The class finds an input that breaks it (a negative age? 0?). |
@@ -110,10 +110,10 @@ ${story}
 | Time | What | Notes |
 |---|---|---|
 | 0–10 | Recap | One billing-rule question from Chapter 3. |
-| 10–20 | Story | "At 10 pm Meera wants the day's total. Some orders were *cancelled* (skip them). When the cashier types CLOSED, stop counting." |
+| 10–20 | Story | "In Ramzan the kitchen stays open late. At closing time Ayesha wants the day's total. Some orders were *cancelled* (skip them). When the cashier types CLOSED, stop counting." |
 | 20–50 | Loops | Live-code the closing-time report (below): \`for\` to go through orders, \`continue\` to skip cancelled ones, \`break\` at CLOSED. |
 | 50–80 | Practice + Bonus | Students write Assignment 3 Q2 (negative = skip, 0 = stop): it's the same pattern. Fast finishers do the Bonus assignment. |
-| 80–90 | Cliffhanger | "Meera now has 15 cities and 40 carts. Next class: why her data team needs Python, not Excel." |
+| 80–90 | Cliffhanger | "Ayesha now has outlets across Pune and orders from two delivery apps. Next class: why her data team needs Python, not Excel." |
 
 ~~~python
 day = [120, 85, "CANCELLED", 240, 60, "CLOSED", 999]
@@ -133,13 +133,13 @@ print("Today's total: ₹", total)    # 505 (the 999 after CLOSED is ignored)
   // -------------------------------------------------------------------------
   "python-for-analytics": `
 ${story}
-**Chapter 5: "40 carts, and Excel keeps crashing."** Goal: students can explain *why* analysts use Python, and leave excited about the jobs it leads to.
+**Chapter 5: "Two apps, many outlets, and Excel keeps crashing."** Goal: students can explain *why* analysts use Python, and leave excited about the jobs it leads to.
 
 | Time | What | Notes |
 |---|---|---|
 | 0–15 | Three true stories | 1) **COVID cases lost to Excel** (England, 2020: about 16,000 cases dropped by a row limit). 2) **Excel renamed human genes**: it kept turning gene names like SEPT1 into dates, so in 2020 scientists *renamed the genes*. 3) Ask: "What's the worst spreadsheet mistake you've seen?" |
 | 15–30 | Python vs Excel | Use the slides. Frame: Excel is a calculator you click; Python is a recipe you can re-run on tomorrow's data in one second. |
-| 30–45 | Think like an analyst | **WWII bullet holes:** returning planes had holes in the wings. The army wanted to armour the wings. Abraham Wald said to armour the engines, because planes hit *there* never came back. The lesson: the data you *don't* see matters. Ask where Meera might have the same problem (customers who never come back leave no orders). |
+| 30–45 | Think like an analyst | **WWII bullet holes:** returning planes had holes in the wings. The army wanted to armour the wings. Abraham Wald said to armour the engines, because planes hit *there* never came back. The lesson: the data you *don't* see matters. Ask where Ayesha might have the same problem (customers who never come back leave no orders). |
 | 45–70 | Real uses | The slides' use cases (customers, health, games). Add: Swiggy and Zomato delivery times, IPL auctions, UPI fraud detection. In groups, each picks one and lists 3 questions the data answers. |
 | 70–90 | Careers | Data analyst → data scientist → ML engineer. What freshers are asked in interviews: SQL, Python (Pandas), one dashboard tool. "You already have Tableau. In 6 weeks you'll have Pandas." |
 
@@ -149,14 +149,14 @@ ${story}
   // -------------------------------------------------------------------------
   "python-practice": `
 ${story}
-**Chapter 6: "Meera's test day."** Goal: check that everyone can use the basics before Pandas, without it feeling like an exam.
+**Chapter 6: "Ayesha's test day."** Goal: check that everyone can use the basics before Pandas, without it feeling like an exam.
 
 | Time | What | Notes |
 |---|---|---|
-| 0–10 | Setup | Teams of 3, mixing strong and weak students. Each team names its "cart". |
-| 10–55 | Speed round | 5 Thattukada challenges on the board, each one worth points. Teams solve them in Colab. Help is allowed *within* a team only. |
+| 0–10 | Setup | Teams of 3, mixing strong and weak students. Each team names its "outlet". |
+| 10–55 | Speed round | 5 Dastarkhwan challenges on the board, each one worth points. Teams solve them in Colab. Help is allowed *within* a team only. |
 | 55–75 | Python basics quiz | Turn the practice quiz on from the admin session page. |
-| 75–90 | Review | Go over the quiz question most people missed. Crown the winning cart. |
+| 75–90 | Review | Go over the quiz question most people missed. Crown the winning outlet. |
 
 **Challenges (easy → hard):**
 1. A menu dict: print every item that costs under ₹20.
@@ -176,14 +176,14 @@ ${story}
 | Time | What | Notes |
 |---|---|---|
 | 0–10 | Wow moment | Re-solve the Chapter 6 boss level in one line of Pandas. Let them react. |
-| 10–25 | Libraries | NumPy, Pandas and Matplotlib as Meera's three tools: calculator, spreadsheet, chart-maker. NumPy demo: "Petrol went up 8%. Raise every price at once" (below). |
+| 10–25 | Libraries | NumPy, Pandas and Matplotlib as Ayesha's three tools: calculator, spreadsheet, chart-maker. NumPy demo: "Rice and chicken prices went up 8%. Raise every price on the menu at once" (below). |
 | 25–50 | First DataFrame | \`read_csv\`, \`head()\`, \`shape\`, \`info()\`, \`describe()\`. Ask: "How many rows? Which columns have blanks? Which are text?" |
 | 50–80 | **Rematch with Tableau** | Load the Superstore data they used in Tableau. Challenge: get total sales, sales by region, and the sub-category that loses the most money. They already know the answers from Tableau, so they can check themselves. |
 | 80–90 | Debrief | "How many clicks did that take in Tableau? How many lines here?" |
 
 ~~~python
 import numpy as np
-prices = np.array([15, 12, 20, 40, 30])
+prices = np.array([180, 20, 25, 60, 30])
 print((prices * 1.08).round())          # every price, at once
 
 import pandas as pd
@@ -207,7 +207,7 @@ ${story}
 
 | Time | What | Notes |
 |---|---|---|
-| 0–10 | Story | Meera: "Somewhere we're *losing* money on orders. Find me the leak." |
+| 0–10 | Story | Ayesha: "Somewhere we're *losing* money on orders. Find me the leak." |
 | 10–40 | Filters | Live-code: one column, several columns, filter \`df[df["Profit"] < 0]\`, combine filters with \`&\` and \`\\|\`, \`sort_values\`. Each filter answers one question. |
 | 40–70 | Detective cards | In pairs, each pair gets 3 question cards (below) and answers them in Pandas. Write the answers on the board. |
 | 70–90 | The verdict | Pairs present: "The leak is ___ because ___." The class challenges any weak evidence. |
@@ -231,7 +231,7 @@ ${story}
 
 | Time | What | Notes |
 |---|---|---|
-| 0–10 | Story | The new franchise owners send their menu sheet (messy Indian street foods CSV). Show the raw file. "Find everything wrong with it." Students call out problems and you list them on the board. |
+| 0–10 | Story | Franchise partners in other cities send their menu sheet (messy Indian street foods CSV). Show the raw file. "Find everything wrong with it." Students call out problems and you list them on the board. |
 | 10–50 | Clean it together | Fix one problem at a time (code below). Tick each item off the board list as it's fixed. |
 | 50–60 | Plot twist | Run \`drop_duplicates()\` *before* \`strip()\`: Pani Puri is still duplicated. Why? (One copy has a leading space.) **Order of cleaning matters.** |
 | 60–85 | Assignment 4 | Employees dirty dataset: same moves, new mess. |
@@ -267,7 +267,7 @@ ${story}
 
 | Time | What | Notes |
 |---|---|---|
-| 0–10 | Story | Meera is choosing where to open next and what to source locally: "Which states grow the most rice and pulses?" The government data arrives *wide*: one column per crop per year. |
+| 0–10 | Story | Ayesha is choosing where to open next and what to source locally: "Biryani needs a lot of rice. Which states grow the most rice and pulses?" The government data arrives *wide*: one column per crop per year. |
 | 10–35 | groupby + agg | Back on Superstore: \`groupby("Region").agg(...)\` with sum, mean and count. Then \`pivot_table\` (Region × Category). "This is your Tableau crosstab." |
 | 35–55 | Wide → long | Show the problem: you can't group by crop when each crop is its own column. \`melt\` fixes it, then \`str.split\` breaks "Cereals_Rice_2009to10" into Category, Crop and Period. |
 | 55–85 | Assignment 5 | State-wise agricultural production: melt, split, then answer 2 questions with groupby. |
@@ -292,7 +292,7 @@ ${story}
 
 | Time | What | Notes |
 |---|---|---|
-| 0–10 | Story | An investor wants to see clean sales by shipping mode and customer segment before funding Meera. The accountant sends the Orders file: wide, mostly empty, and dates stored as text. |
+| 0–10 | Story | An investor wants to see clean sales by shipping mode and customer segment before funding Ayesha. The accountant sends the Orders file: wide, mostly empty, and dates stored as text. |
 | 10–25 | Diagnose | Students run \`head\` / \`info\` / \`isna().sum()\` and list the problems themselves this time. |
 | 25–70 | Clean it, in pairs | Melt to long, drop the empty rows, split "FirstClass_Consumer" into Ship_Mode + Segment, convert Date, then pivot back for the investor. |
 | 70–90 | Show and tell | 2 pairs show their final table. Compare: did both get the same totals? If not, find where they diverged. |
@@ -318,7 +318,7 @@ ${story}
 |---|---|---|
 | 0–15 | Hook: Anscombe's quartet | Show 4 datasets with the *same* mean, variance and correlation. Then plot them: 4 completely different pictures. "Never trust a summary you haven't plotted." (code below) |
 | 15–45 | Three charts, three questions | Bar: "Which category earns most?" Line: "Are sales growing month by month?" Scatter: "Do discounts kill profit?" (Superstore). Build each one live. |
-| 45–75 | Pitch deck | Pairs make 2 charts for Meera's investor from the cleaned street-food data or Superstore. Each chart needs a title that *states the finding*, not just the topic. |
+| 45–75 | Pitch deck | Pairs make 2 charts for Ayesha's investor from the cleaned street-food data or Superstore. Each chart needs a title that *states the finding*, not just the topic. |
 | 75–90 | Pitch | 3 pairs pitch in 60 seconds each. The class plays investor: "Would you fund her?" |
 
 ~~~python
@@ -344,7 +344,7 @@ plt.ylabel("Sales ($)"); plt.show()
   // -------------------------------------------------------------------------
   "matplotlib-2": `
 ${story}
-**Chapter 13: "Side quest: the IPL scout."** Meera sponsors a local team, and the coach wants help at the auction. Goal: stacked bars, histograms and subplots, plus cleaning real sports data.
+**Chapter 13: "Side quest: the IPL scout."** Ayesha sponsors a local team, and the coach wants help at the auction. Goal: stacked bars, histograms and subplots, plus cleaning real sports data.
 
 | Time | What | Notes |
 |---|---|---|
@@ -371,7 +371,7 @@ batters.groupby("Team Name")[["50", "100"]].sum().plot.barh(stacked=True); plt.s
   // -------------------------------------------------------------------------
   "project-build": `
 ${story}
-**Chapter 14: "The newsroom."** Plot twist: a news channel borrows Meera's data team on counting day. Goal: teams run a full project (question → clean → analyse → chart → recommend) in Python and Tableau.
+**Chapter 14: "The newsroom."** Plot twist: a news channel borrows Ayesha's data team on counting day. Goal: teams run a full project (question → clean → analyse → chart → recommend) in Python and Tableau.
 
 | Time | What | Notes |
 |---|---|---|
@@ -386,13 +386,13 @@ ${story}
   // -------------------------------------------------------------------------
   "project-present": `
 ${story}
-**Chapter 15: "Pitch to Meera."** Goal: present like an analyst: question, finding, evidence, recommendation, in 5 minutes.
+**Chapter 15: "Pitch to Ayesha."** Goal: present like an analyst: question, finding, evidence, recommendation, in 5 minutes.
 
 | Time | What | Notes |
 |---|---|---|
 | 0–5 | Format | Shark-Tank style: each team has 5 minutes plus 2 minutes of questions. The class and you are the panel. |
 | 5–80 | Presentations | Score each team on: clear question · clean data (say what you fixed) · one strong chart · a recommendation. Ask one "explain this line of code" question per team. |
-| 80–90 | Close the story | Meera's closing line: "You started with one variable for one pazham pori. Now you can clean, analyse and chart 10,000 rows." Preview the AI module: "Next, we teach the computer to help you." |
+| 80–90 | Close the story | Ayesha's closing line: "You started with one variable for one plate of biryani. Now you can clean, analyse and chart 10,000 rows." Preview the AI module: "Next, we teach the computer to help you." |
 
 **Scoring** (out of 10 each): question 2 · cleaning 2 · analysis 2 · chart 2 · recommendation 2.
 `,
